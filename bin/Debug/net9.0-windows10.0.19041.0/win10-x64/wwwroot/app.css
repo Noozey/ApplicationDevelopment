@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/* Backgrounds */
+.bg-primary {
+    background-color: var(--color-primary);
+}
+
+.bg-background {
+    background-color: var(--color-background);
+}
+
+.bg-muted {
+    background-color: var(--color-muted);
+}
+
+.bg-success {
+    background-color: var(--color-success);
+}
+
+.bg-success-light {
+    background-color: var(--color-success-light);
+}
+
+.bg-info {
+    background-color: var(--color-info);
+}
+
+.bg-destructive {
+    background-color: var(--color-destructive);
+}
+
+.bg-accent {
+    background-color: var(--color-accent);
+}
+
+/* Text Colors */
+.text-primary-foreground {
+    color: var(--color-primary-foreground);
+}
+
+.text-foreground {
+    color: var(--color-foreground);
+}
+
+.text-secondary-foreground {
+    color: var(--color-secondary-foreground);
+}
+
+.text-tertiary-foreground {
+    color: var(--color-tertiary-foreground);
+}
+
+.text-success-foreground {
+    color: var(--color-success-foreground);
+}
+
+.text-info-foreground {
+    color: var(--color-info-foreground);
+}
+
+.text-destructive-foreground {
+    color: var(--color-destructive-foreground);
+}
+
+.text-accent-foreground {
+    color: var(--color-accent-foreground);
+}
+
+/* Borders */
+.border-success {
+    border-color: var(--color-success-border);
+}
+
+.border-info {
+    border-color: var(--color-info-border);
+}
+
+.border-destructive {
+    border-color: var(--color-destructive-border);
+}
+
+.border-accent {
+    border-color: var(--color-accent-border);
+}
+
+/* Hover States */
+.hover-bg {
+    background-color: var(--color-hover-background);
+}
+
+.hover-border {
+    border-color: var(--color-hover-border);
+}}
+
+/* Blazor compatibility fixes */
+* {
+    box-sizing: border-box !important;
+}
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.line-clamp-3 {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}

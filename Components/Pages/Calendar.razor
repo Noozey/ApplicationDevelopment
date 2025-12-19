@@ -1,5 +1,13 @@
 @page "/Calendar"
 
-<div>
-	Clander
+<head>
+	
+	<!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
+	<link href="_content/MudBlazor/MudBlazor.min.css?v=1" rel="stylesheet" />
+</head>
+
+<div class="flex items-center justify-center">
+	
+		<MudDatePicker PickerVariant="PickerVariant.Static" Orientation="Orientation.Landscape" Date="@(DateTime.Today.AddDays(1))" />
+	
 </div>
