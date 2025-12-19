@@ -1,15 +1,142 @@
 ﻿@page "/"
+@using MauiApp2.Services
+@inject JournalState JournalState
 
-        <div id="journalList" class="space-y-4 w-screen" style="display: block;">
+@if (JournalState.ShowEditor)
+{
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-foreground">Today's Entry</h2>
+            <button onclick="toggleEditor()" class="text-secondary-foreground hover:text-foreground transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-foreground mb-2">
+                How are you feeling today? <span class="text-destructive">*</span>
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <p class="text-xs font-semibold text-success-foreground mb-2">POSITIVE</p>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Happy</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Excited</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Relaxed</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Grateful</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Confident</button>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-info-foreground mb-2">NEUTRAL</p>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Calm</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Thoughtful</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Curious</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Nostalgic</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Bored</button>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-destructive-foreground mb-2">NEGATIVE</p>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Sad</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Angry</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Stressed</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Lonely</button>
+                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Anxious</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-foreground mb-2">
+                Secondary Moods (Optional, up to 2)
+            </label>
+            <div class="flex flex-wrap gap-2">
+                <button class="px-3 py-1 rounded-full text-sm border bg-success-light text-success-foreground border-success hover-bg transition-colors">Excited</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-info-foreground border-info hover-bg transition-colors">Calm</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-success-light text-success-foreground border-success hover-bg transition-colors">Grateful</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-info-foreground border-info hover-bg transition-colors">Thoughtful</button>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-foreground mb-2">
+                Write your thoughts...
+            </label>
+            <textarea class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="What's on your mind today?" style="font-family: inherit;"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-foreground mb-2">Tags</label>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Work</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Health</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Personal Growth</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Exercise</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Family</button>
+                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Friends</button>
+            </div>
+            <input type="text" placeholder="Add custom tag..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <div class="flex justify-end gap-3 flex-wrap">
+            <button class="px-6 py-2 border border-gray-300 rounded-lg text-secondary-foreground hover-bg flex items-center gap-2 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <span>Delete</span>
+            </button>
+            <button class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2 transition-opacity">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <span>Save Entry</span>
+            </button>
+        </div>
+    </div>
+    return;
+}
+
+
+
+        <div class="space-y-4 w-screen">
             <div class="flex flex-row gap-3 mb-6 w-full">
                 <div class="w-full items-center justify-between">
-                   
+
                     <input type="text" placeholder="Search entries..." class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-         
+
                 </div>
-                <button onclick="toggleFilters()" class="px-4 py-2 border border-gray-300 rounded-lg hover-bg flex items-center gap-2 transition-colors flex-shrink-0">
+                <button @onclick="JournalState.ToggleEditor" class="px-4 py-2 border border-gray-300 rounded-lg hover-bg flex items-center gap-2 transition-colors flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                     <span>Filters</span>
                 </button>
             </div>
             </div>
+<div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+    <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+        <div class="flex-1">
+            <h3 class="text-lg font-semibold text-foreground mb-1">December 18, 2025</h3>
+            <div class="flex gap-2 items-center text-sm text-secondary-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>Updated 2 hours ago</span>
+            </div>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+            <button class="p-2 hover-bg rounded transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
+            <button class="p-2 hover-bg rounded transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex gap-2 mb-3 flex-wrap">
+        <span class="px-3 py-1 rounded-full text-sm border bg-success-light text-success-foreground border-success font-medium">Happy</span>
+        <span class="px-3 py-1 rounded-full text-sm border bg-muted text-info-foreground border-info">Calm</span>
+    </div>
+
+    <p class="text-secondary-foreground mb-3 line-clamp-3">
+        Today was a wonderful day. I spent time working on my projects and felt really productive.
+        The weather was beautiful and I managed to go for a walk in the evening...
+    </p>
+
+    <div class="flex flex-wrap gap-2">
+        <span class="px-2 py-1 bg-muted text-accent-foreground rounded text-xs border border-accent">Work</span>
+        <span class="px-2 py-1 bg-muted text-accent-foreground rounded text-xs border border-accent">Personal Growth</span>
+        <span class="px-2 py-1 bg-muted text-accent-foreground rounded text-xs border border-accent">Exercise</span>
+    </div>
+</div>

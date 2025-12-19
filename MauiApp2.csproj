@@ -61,13 +61,23 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Remove="Components\Pages\Weather.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="NewFolder1\" />
+      <Folder Include="NewFolder\" />
       <Folder Include="wwwroot\css\NewFolder\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <LibraryProjectProperties Include="Components\Pages\Weather.razor" />
     </ItemGroup>
 
 </Project>

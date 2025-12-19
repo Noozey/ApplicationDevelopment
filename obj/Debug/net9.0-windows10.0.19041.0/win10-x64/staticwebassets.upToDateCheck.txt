@@ -1,8 +1,0 @@
-wwwroot\app.css
-wwwroot\css\output.css
-wwwroot\css\theme.css
-wwwroot\index.html
-C:\Users\Nooze\source\repos\MauiApp2\MauiApp2\wwwroot\app.css
-C:\Users\Nooze\source\repos\MauiApp2\MauiApp2\wwwroot\css\output.css
-C:\Users\Nooze\source\repos\MauiApp2\MauiApp2\wwwroot\css\theme.css
-C:\Users\Nooze\source\repos\MauiApp2\MauiApp2\wwwroot\index.html
