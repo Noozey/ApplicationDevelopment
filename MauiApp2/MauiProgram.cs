@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MauiApp2.Services;
 using MudBlazor.Services;
 
 namespace MauiApp2
@@ -23,7 +22,6 @@ namespace MauiApp2
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
-            builder.Services.AddSingleton<JournalState>();
             return builder.Build();
         }
     }
