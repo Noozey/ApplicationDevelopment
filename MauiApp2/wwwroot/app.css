@@ -1,5 +1,4 @@
 @import "tailwindcss";
-
 /* Backgrounds */
 .bg-primary {
     background-color: var(--color-primary);
@@ -90,7 +89,7 @@
 
 .hover-border {
     border-color: var(--color-hover-border);
-}}
+}
 
 /* Blazor compatibility fixes */
 * {
