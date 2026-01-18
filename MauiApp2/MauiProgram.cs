@@ -1,34 +1,28 @@
 ﻿using MauiApp2.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using MudBlazor.Services;
+using MauiApp2.Services;
 
-namespace MauiApp2
+namespace MauiApp2;
+
+public static class MauiProgram
 {
-    public static class MauiProgram
+    public static MauiApp CreateMauiApp()
     {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+        var builder = MauiApp.CreateBuilder();
 
-            builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddMudServices();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            });
+
+        builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-            builder.Services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseSqlite("Data Source=app.db");
-            });
-            builder.Services.AddBlazorWebViewDeveloperTools();
-            builder.Logging.AddDebug();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-            return builder.Build();
-        }
+        builder.Services.AddSingleton<AuthService>();
+        builder.Services.AddDbContext<AppDbContext>();
+        return builder.Build();
     }
 }

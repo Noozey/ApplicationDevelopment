@@ -84,8 +84,6 @@
       <Folder Include="Common\" />
       <Folder Include="Data\" />
       <Folder Include="Entity\" />
-      <Folder Include="Models\" />
-      <Folder Include="Services\" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-ios'">

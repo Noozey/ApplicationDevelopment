@@ -1,15 +1,44 @@
 ﻿@inherits LayoutComponentBase
+@using MauiApp2.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 
 
-<div>
-    <div class="sidebar">
+<div>	
+	@if (AuthService.IsLoggedIn)
+	{
+	<div class="sidebar">
         <NavMenu />
     </div>
 
+
+	}
     <main>
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+	protected override void OnInitialized()
+	{
+		var currentUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+
+		// Only redirect if not logged in AND not on login or signup
+		if (!AuthService.IsLoggedIn &&
+		    currentUri != "login" &&
+		    currentUri != "signup")
+		{
+			NavigationManager.NavigateTo("/login", true);
+		}
+	}
+
+
+	private void Logout()
+	{
+		AuthService.Logout();
+		NavigationManager.NavigateTo("/login", true);
+	}
+}

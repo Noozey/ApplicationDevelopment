@@ -1,15 +1,23 @@
-﻿using MauiApp2.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace MauiApp2.Data
+﻿namespace MauiApp2.Data
 {
+    using MauiApp2.Models;
+    using Microsoft.EntityFrameworkCore;
+
     public class AppDbContext : DbContext
     {
         public DbSet<User> Users => Set<User>();
 
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
+        private readonly string _dbPath;
+
+        public AppDbContext()
         {
+            var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            _dbPath = Path.Combine(folder, "app.db");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite($"Data Source={_dbPath}");
         }
     }
 }

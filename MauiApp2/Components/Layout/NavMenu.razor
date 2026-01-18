@@ -1,31 +1,43 @@
-﻿ <!-- Header -->
-        <header class="bg-white rounded-lg shadow-lg p-6 mb-6" style="padding:32px;">
-            <div class="flex justify-between items-center flex-wrap gap-4">
-                <div class="flex-shrink-0">
-                    <h1 class="text-3xl font-bold text-foreground mb-2">My Journal</h1>
-                    <p class="text-secondary-foreground">Track your thoughts, moods, and daily experiences</p>
-                </div>
-        <a href="/create" class="px-6 py-3 bg-primary text-primary-foreground rounded-lg flex items-center gap-2 shadow-md hover:opacity-90 transition-opacity flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span>New Entry</span>
-                </a>
-            </div>
+﻿@using MauiApp2.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
-            <div class="flex gap-4 mt-6 flex-wrap">
-        <a href="/"  class=" px-6 py-2 rounded-lg font-medium transition-colors bg-primary text-primary-foreground">
-            Journal Entries
-        </a>
-               <a href='/dashboard' class="px-6 py-2 rounded-lg font-medium transition-colors bg-muted text-secondary-foreground hover-bg">
-                    Analytics
-                   </a>
-                   <a href='/calendar' class="px-6 py-2 rounded-lg font-medium transition-colors bg-muted text-secondary-foreground hover-bg">
-                    Calendar
-                   </a>
-                   <a href="login">
-                    login
-                   </a>
-                   <a href="signup">
-                    SignUp
-                   </a>
-            </div>
-        </header>   
+<header class="bg-white rounded-lg shadow-lg p-6 mb-6" style="padding:32px;">
+	<div class="flex justify-between items-center flex-wrap gap-4">
+		<div class="flex-shrink-0">
+			<h1 class="text-3xl font-bold text-foreground mb-2">My Journal</h1>
+			<p class="text-secondary-foreground">
+				Track your thoughts, moods, and daily experiences
+			</p>
+		</div>
+
+		<NavLink href="/create"
+		         class="px-6 py-3 bg-primary text-primary-foreground rounded-lg flex items-center gap-2 shadow-md hover:opacity-90 transition-opacity flex-shrink-0">
+			<span>New Entry</span>
+		</NavLink>
+		<button @onclick="Logout">logout</button>
+	</div>
+
+	<div class="flex gap-4 mt-6 flex-wrap">
+		<NavLink href="/" class="px-6 py-2 rounded-lg font-medium bg-primary text-primary-foreground">
+			Journal Entries
+		</NavLink>
+
+		<NavLink href="/dashboard" class="px-6 py-2 rounded-lg font-medium bg-muted text-secondary-foreground hover:bg-muted/80">
+			Analytics
+		</NavLink>
+
+		<NavLink href="/calendar" class="px-6 py-2 rounded-lg font-medium bg-muted text-secondary-foreground hover:bg-muted/80">
+			Calendar
+		</NavLink>
+	</div>
+</header>
+
+@code
+{
+	private void Logout()
+	{
+		AuthService.Logout();
+		NavigationManager.NavigateTo("/login", true);
+	}
+}
