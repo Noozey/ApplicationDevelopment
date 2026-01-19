@@ -23,6 +23,7 @@ public static class MauiProgram
 #endif
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddDbContext<AppDbContext>();
+        builder.Services.AddScoped<JournalService>();
         return builder.Build();
     }
 }

@@ -1,86 +1,220 @@
 @page "/Create"
+@using MauiApp2.Models
+@using MauiApp2.Services
+@inject JournalService JournalService
+@inject AuthService AuthService
+@inject NavigationManager Nav
 
-<div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-foreground">Today's Entry</h2>
-            <button onclick="toggleEditor()" class="text-secondary-foreground hover:text-foreground transition-colors">
+<div class="max-w-6xl mx-auto p-4">
+    <div class="bg-card rounded-2xl shadow-xl p-8 mb-6 border border-gray-200">
+        @* Header Section *@
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-bold text-foreground mb-2">@(isEditMode ? "Edit Entry" : "New Entry")</h2>
+                <input type="date"
+                       @bind="newEntry.EntryDate"
+                       readonly
+                       class="mt-1 text-sm px-3 py-1.5 rounded-lg bg-muted text-muted-foreground cursor-not-allowed border border-gray-200" />
+            </div>
+            <button @onclick='() => Nav.NavigateTo("/")'
+                    class="p-2 rounded-lg transition-all hover-bg text-secondary-foreground hover:text-foreground">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-foreground mb-2">
-                How are you feeling today? <span class="text-destructive">*</span>
+        @* Primary Mood Selection *@
+        <div class="mb-8">
+            <label class="block text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                How are you feeling today?
+                <span class="text-destructive">*</span>
             </label>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                    <p class="text-xs font-semibold text-success-foreground mb-2">POSITIVE</p>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Happy</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Excited</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Relaxed</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Grateful</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-success-light text-success-foreground border-success hover-bg transition-colors">Confident</button>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-info-foreground mb-2">NEUTRAL</p>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Calm</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Thoughtful</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Curious</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Nostalgic</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-muted text-info-foreground border-info hover-bg transition-colors">Bored</button>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold text-destructive-foreground mb-2">NEGATIVE</p>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Sad</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Angry</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Stressed</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Lonely</button>
-                    <button class="w-full text-left px-3 py-2 rounded mb-1 border bg-red-50 text-destructive-foreground border-destructive hover-bg transition-colors">Anxious</button>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @foreach (var cat in MoodCategories)
+                {
+                    <div class="space-y-3">
+                        <p class="text-xs font-bold uppercase tracking-wider text-tertiary-foreground mb-2">@cat.Name</p>
+                        <div class="flex flex-col gap-2">
+                            @foreach (var mood in cat.Moods)
+                            {
+                                bool isSelected = newEntry.PrimaryMood == mood;
+                                var colors = GetMoodColors(cat.Name);
+
+                                <button @onclick="() => SelectPrimaryMood(mood)"
+                                        type="button"
+                                        style="@(isSelected ? $"background-color: {colors.bg}; border-color: {colors.border}; color: {colors.text}; font-weight: 600; box-shadow: 0 2px 8px {colors.shadow};" : $"border-color: {colors.lightBorder}; background-color: white;")"
+                                        class="w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-200 hover:shadow-md @(isSelected ? "" : "hover:border-gray-300")">
+                                    <div class="flex justify-between items-center">
+                                        <span style="@(isSelected ? $"color: {colors.text};" : $"color: {colors.border};")">@mood</span>
+                                        @if (isSelected)
+                                        {
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        }
+                                    </div>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-foreground mb-2">
-                Secondary Moods (Optional, up to 2)
+        @* Secondary Moods Selection *@
+        <div class="mb-8">
+            <label class="block text-base font-bold text-foreground mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                Secondary Moods (Up to 2)
             </label>
             <div class="flex flex-wrap gap-2">
-                <button class="px-3 py-1 rounded-full text-sm border bg-success-light text-success-foreground border-success hover-bg transition-colors">Excited</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-info-foreground border-info hover-bg transition-colors">Calm</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-success-light text-success-foreground border-success hover-bg transition-colors">Grateful</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-info-foreground border-info hover-bg transition-colors">Thoughtful</button>
+                @foreach (var mood in SecondaryOptions)
+                {
+                    bool isSelected = newEntry.SecondaryMood1 == mood || newEntry.SecondaryMood2 == mood;
+                    <button @onclick="() => ToggleSecondaryMood(mood)"
+                            type="button"
+                            class="px-5 py-2.5 rounded-full text-sm font-medium border-2 transition-all shadow-sm"
+                            style="@(isSelected ? "background-color: var(--color-primary); border-color: var(--color-accent-border); color:white;" : "background-color: white; border-color: var(--color-gray-200); color: var(--color-gray-600);")">
+                        @mood
+                    </button>
+                }
             </div>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-foreground mb-2">
-                Write your thoughts...
-            </label>
-            <textarea class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="What's on your mind today?" style="font-family: inherit;"></textarea>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-foreground mb-2">Tags</label>
-            <div class="flex flex-wrap gap-2 mb-3">
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Work</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Health</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Personal Growth</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Exercise</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Family</button>
-                <button class="px-3 py-1 rounded-full text-sm border bg-muted text-accent-foreground border-accent hover-bg transition-colors">Friends</button>
+        @* Details Section *@
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            <div>
+                <label class="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Category
+                </label>
+                <select @bind="newEntry.Category"
+                        class="w-full p-3 border-2 rounded-xl bg-white text-foreground focus:outline-none focus:ring-2 transition-all"
+                        style="border-color: var(--color-input); focus:border-color: var(--color-primary);">
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Health">Health</option>
+                    <option value="Social">Social</option>
+                </select>
             </div>
-            <input type="text" placeholder="Add custom tag..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <div>
+                <label class="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Tags
+                </label>
+                <input type="text"
+                       @bind="newEntry.Tags"
+                       placeholder="e.g. gym, family, meditation"
+                       class="w-full p-3 border-2 rounded-xl bg-white text-foreground focus:outline-none focus:ring-2 transition-all"
+                       style="border-color: var(--color-input);" />
+            </div>
         </div>
 
-        <div class="flex justify-end gap-3 flex-wrap">
-            <button class="px-6 py-2 border border-gray-300 rounded-lg text-secondary-foreground hover-bg flex items-center gap-2 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                <span>Delete</span>
+        @* Writing Area *@
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-3">
+                <label class="text-base font-bold text-foreground flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    Write your thoughts...
+                </label>
+                <span class="text-xs font-mono px-3 py-1 rounded-full bg-info-light text-info-foreground font-semibold">
+                    @newEntry.WordCount words
+                </span>
+            </div>
+            <textarea @bind="newEntry.Content"
+                      @oninput="OnContentInput"
+                      class="w-full h-72 p-4 border-2 rounded-xl focus:outline-none focus:ring-2 resize-none bg-white text-foreground transition-all"
+                      style="border-color: var(--color-input); line-height: 1.8;"
+                      placeholder="What's on your mind? Express yourself freely..."></textarea>
+        </div>
+
+        @* Bottom Actions *@
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button @onclick='() => Nav.NavigateTo("/")'
+                    class="px-6 py-3 border-2 rounded-xl font-semibold transition-all hover-bg"
+                    style="border-color: var(--color-border); color: var(--color-secondary-foreground);">
+                Cancel
             </button>
-            <button class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2 transition-opacity">
+            <button @onclick="SaveEntry"
+                    disabled="@(string.IsNullOrEmpty(newEntry.PrimaryMood) || string.IsNullOrEmpty(newEntry.Content))"
+                    class="px-8 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 font-semibold"
+                    style="@((string.IsNullOrEmpty(newEntry.PrimaryMood) || string.IsNullOrEmpty(newEntry.Content)) ? "background-color: var(--color-gray-300); color: var(--color-gray-500); cursor: not-allowed;" : "background-color: var(--color-primary); color: var(--color-primary-foreground);")">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                <span>Save Entry</span>
+                <span>@(isEditMode ? "Update Entry" : "Save Entry")</span>
             </button>
         </div>
     </div>
- 
+</div>
+
+@code {
+    private JournalEntry newEntry = new();
+    private bool isEditMode = false;
+
+    // Helper to get colors that match your theme
+    private (string bg, string border, string text, string lightBorder, string shadow) GetMoodColors(string category) => category switch
+    {
+        "POSITIVE" => ("hsl(142 77% 92%)", "hsl(142 71% 45%)", "hsl(142 76% 28%)", "hsl(142 71% 85%)", "rgba(34, 197, 94, 0.15)"),
+        "NEUTRAL" => ("hsl(210 100% 94%)", "hsl(211 96% 62%)", "hsl(211 96% 36%)", "hsl(211 96% 85%)", "rgba(59, 130, 246, 0.15)"),
+        "NEGATIVE" => ("hsl(0 86% 94%)", "hsl(0 72% 51%)", "hsl(0 74% 42%)", "hsl(0 72% 85%)", "rgba(239, 68, 68, 0.15)"),
+        _ => ("hsl(0 0% 96%)", "hsl(220 9% 46%)", "hsl(222 47% 11%)", "hsl(220 13% 91%)", "rgba(0, 0, 0, 0.05)")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = AuthService.UserId ?? 0;
+        if (userId == 0) { Nav.NavigateTo("/login"); return; }
+
+        var existing = await JournalService.GetEntryByDate(userId, DateTime.Today);
+        if (existing != null)
+        {
+            newEntry = existing;
+            isEditMode = true;
+        }
+        else
+        {
+            newEntry = new JournalEntry { UserId = userId, EntryDate = DateTime.Today, PrimaryMood = "" };
+        }
+    }
+
+    private void SelectPrimaryMood(string mood)
+    {
+        newEntry.PrimaryMood = mood;
+        StateHasChanged();
+    }
+
+    private void ToggleSecondaryMood(string mood)
+    {
+        if (newEntry.SecondaryMood1 == mood) newEntry.SecondaryMood1 = null;
+        else if (newEntry.SecondaryMood2 == mood) newEntry.SecondaryMood2 = null;
+        else if (string.IsNullOrEmpty(newEntry.SecondaryMood1)) newEntry.SecondaryMood1 = mood;
+        else if (string.IsNullOrEmpty(newEntry.SecondaryMood2)) newEntry.SecondaryMood2 = mood;
+        StateHasChanged();
+    }
+
+    private void OnContentInput(ChangeEventArgs e)
+    {
+        newEntry.Content = e.Value?.ToString() ?? "";
+        UpdateWordCount();
+    }
+
+    private void UpdateWordCount()
+    {
+        if (string.IsNullOrWhiteSpace(newEntry.Content)) newEntry.WordCount = 0;
+        else newEntry.WordCount = newEntry.Content.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+
+    private async Task SaveEntry()
+    {
+        await JournalService.SaveOrUpdateEntry(newEntry);
+        Nav.NavigateTo("/");
+    }
+
+    private List<MoodCategory> MoodCategories = new()
+    {
+        new MoodCategory("POSITIVE", new() { "Happy", "Excited", "Relaxed", "Grateful" }),
+        new MoodCategory("NEUTRAL", new() { "Calm", "Thoughtful", "Bored" }),
+        new MoodCategory("NEGATIVE", new() { "Sad", "Angry", "Stressed", "Anxious" })
+    };
+
+    private List<string> SecondaryOptions = new() { "Productive", "Tired", "Social", "Quiet", "Inspired", "Hungry" };
+
+    public record MoodCategory(string Name, List<string> Moods);
+}

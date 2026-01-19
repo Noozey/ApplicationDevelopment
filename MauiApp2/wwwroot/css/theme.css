@@ -1,55 +1,72 @@
 :root {
-    /* Primary Colors */
+    /* Primary Colors - Vibrant Blue */
     --color-primary: hsl(217 91% 60%);
     --color-primary-foreground: hsl(0 0% 100%);
+    --color-primary-hover: hsl(217 91% 54%);
     /* Background Colors */
     --color-background: hsl(0 0% 100%);
-    --color-muted: hsl(214 32% 91%);
-    --color-muted-foreground: hsl(215 16% 47%);
-    /* Mood Colors - Positive (Green) */
-    --color-success: hsl(142 76% 36%);
-    --color-success-light: hsl(142 76% 96%);
-    --color-success-medium: hsl(142 77% 90%);
-    --color-success-border: hsl(142 76% 76%);
-    --color-success-foreground: hsl(142 70% 20%);
-    /* Mood Colors - Neutral (Blue) */
-    --color-info: hsl(217 91% 60%);
-    --color-info-light: hsl(214 95% 97%);
-    --color-info-medium: hsl(214 95% 93%);
-    --color-info-border: hsl(213 97% 87%);
-    --color-info-foreground: hsl(217 91% 30%);
-    /* Mood Colors - Negative (Red) */
-    --color-destructive: hsl(0 84% 60%);
+    --color-muted: hsl(220 14% 96%);
+    --color-muted-foreground: hsl(220 9% 46%);
+    /* Mood Colors - Positive (Vibrant Green) */
+    --color-success: hsl(142 71% 45%);
+    --color-success-light: hsl(142 76% 97%);
+    --color-success-medium: hsl(142 77% 92%);
+    --color-success-border: hsl(142 71% 70%);
+    --color-success-foreground: hsl(142 76% 28%);
+    /* Mood Colors - Neutral (Modern Blue) */
+    --color-info: hsl(211 96% 62%);
+    --color-info-light: hsl(210 100% 97%);
+    --color-info-medium: hsl(210 100% 94%);
+    --color-info-border: hsl(211 96% 82%);
+    --color-info-foreground: hsl(211 96% 36%);
+    /* Mood Colors - Negative (Warm Red) */
+    --color-destructive: hsl(0 72% 51%);
     --color-destructive-light: hsl(0 86% 97%);
-    --color-destructive-medium: hsl(0 86% 95%);
-    --color-destructive-border: hsl(0 84% 86%);
-    --color-destructive-foreground: hsl(0 84% 30%);
-    /* Tag Colors (Purple) */
+    --color-destructive-medium: hsl(0 86% 94%);
+    --color-destructive-border: hsl(0 72% 80%);
+    --color-destructive-foreground: hsl(0 74% 42%);
+    /* Tag Colors (Rich Purple) */
     --color-accent: hsl(262 83% 58%);
-    --color-accent-light: hsl(270 100% 98%);
-    --color-accent-medium: hsl(270 100% 95%);
+    --color-accent-light: hsl(262 100% 98%);
+    --color-accent-medium: hsl(262 100% 95%);
     --color-accent-border: hsl(262 69% 84%);
-    --color-accent-foreground: hsl(263 70% 50%);
-    /* Gray Scale */
+    --color-accent-foreground: hsl(262 83% 48%);
+    /* Card & Container Colors */
     --color-card: hsl(0 0% 100%);
-    --color-border: hsl(214 32% 91%);
-    --color-input: hsl(214 32% 91%);
+    --color-card-hover: hsl(220 14% 99%);
+    --color-border: hsl(220 13% 91%);
+    --color-input: hsl(220 13% 91%);
     --color-ring: hsl(217 91% 60%);
-    /* Text Colors */
+    /* Text Colors - Improved Contrast */
     --color-foreground: hsl(222 47% 11%);
-    --color-secondary-foreground: hsl(215 16% 47%);
-    --color-tertiary-foreground: hsl(220 9% 46%);
+    --color-secondary-foreground: hsl(215 20% 40%);
+    --color-tertiary-foreground: hsl(220 9% 55%);
     /* Hover States */
-    --color-hover-background: hsl(210 40% 96%);
-    --color-hover-border: hsl(214 32% 91%);
-    /* Gray Shades */
-    --color-gray-50: hsl(210 40% 96%);
-    --color-gray-100: hsl(214 32% 91%);
-    --color-gray-200: hsl(213 27% 84%);
-    --color-gray-300: hsl(211 25% 72%);
-    --color-gray-400: hsl(214 20% 69%);
-    --color-gray-500: hsl(220 9% 46%);
-    --color-gray-600: hsl(215 16% 47%);
-    --color-gray-700: hsl(217 19% 27%);
-    --color-gray-800: hsl(222 47% 11%);
+    --color-hover-background: hsl(220 14% 96%);
+    --color-hover-border: hsl(220 13% 85%);
+    /* Gray Shades - Refined Scale */
+    --color-gray-50: hsl(220 14% 98%);
+    --color-gray-100: hsl(220 14% 96%);
+    --color-gray-200: hsl(220 13% 91%);
+    --color-gray-300: hsl(220 13% 85%);
+    --color-gray-400: hsl(220 9% 70%);
+    --color-gray-500: hsl(220 9% 55%);
+    --color-gray-600: hsl(220 13% 40%);
+    --color-gray-700: hsl(220 16% 28%);
+    --color-gray-800: hsl(222 47% 18%);
+    --color-gray-900: hsl(222 47% 11%);
+    /* Additional Semantic Colors */
+    --color-warning: hsl(38 92% 50%);
+    --color-warning-light: hsl(38 100% 97%);
+    --color-warning-medium: hsl(38 100% 93%);
+    --color-warning-border: hsl(38 92% 75%);
+    --color-warning-foreground: hsl(38 92% 30%);
+    /* Focus & Active States */
+    --color-focus-ring: hsl(217 91% 60% / 0.2);
+    --color-active-background: hsl(217 91% 96%);
+    /* Shadow Colors */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1);
 }
