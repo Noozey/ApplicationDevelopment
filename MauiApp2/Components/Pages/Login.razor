@@ -1,58 +1,115 @@
 @page "/login"
-
 @using MauiApp2.Data
 @using MauiApp2.Models
 @using MauiApp2.Services
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.EntityFrameworkCore
-
 @inject IServiceProvider ServiceProvider
 @inject NavigationManager NavigationManager
 @inject AuthService AuthService
 
-
-<div class="flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-center text-gray-800">Login</h2>
-
-        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block mb-1 text-gray-600">Email</label>
-                    <InputText @bind-Value="loginModel.Email"
-                               type="email"
-                               placeholder="Enter your email"
-                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    <ValidationMessage For="@(() => loginModel.Email)" />
-                </div>
-
-                <div>
-                    <label class="block mb-1 text-gray-600">Password</label>
-                    <InputText @bind-Value="loginModel.Password"
-                               type="password"
-                               placeholder="Enter your password"
-                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                    <ValidationMessage For="@(() => loginModel.Password)" />
-                </div>
-
-                <button type="submit"
-                        class="w-full py-2 mt-4 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    Login
-                </button>
-
-                <div class="flex items-center justify-center mt-2 text-sm text-gray-500">
-                    <a href="/signup" class="hover:text-blue-600">Sign Up</a>
-                </div>
+<div class="flex items-center justify-center min-h-screen bg-muted p-4">
+    <div class="w-full max-w-md">
+        @* Logo/Header Section *@
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-lg mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
             </div>
-        </EditForm>
+            <h1 class="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
+            <p class="text-secondary-foreground">Sign in to continue your journaling journey</p>
+        </div>
 
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="mt-4 text-center text-red-500">@errorMessage</div>
-        }
+        @* Login Card *@
+        <div class="bg-card rounded-2xl shadow-xl p-8 border border-gray-200">
+            <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-5">
+                    @* Email Field *@
+                    <div>
+                        <label class="block mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            Email
+                        </label>
+                        <InputText @bind-Value="loginModel.Email"
+                                   type="email"
+                                   placeholder="Enter your email"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-background text-foreground"
+                                   style="border-color: var(--color-input);" />
+                        <ValidationMessage For="@(() => loginModel.Email)" class="text-destructive-foreground text-sm mt-1" />
+                    </div>
+
+                    @* Password Field *@
+                    <div>
+                        <label class="block mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Password
+                        </label>
+                        <InputText @bind-Value="loginModel.Password"
+                                   type="password"
+                                   placeholder="Enter your password"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-background text-foreground"
+                                   style="border-color: var(--color-input);" />
+                        <ValidationMessage For="@(() => loginModel.Password)" class="text-destructive-foreground text-sm mt-1" />
+                    </div>
+
+                    @* Error Message *@
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="bg-destructive-light border-2 border-destructive-border rounded-xl p-4 flex items-start gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-destructive-foreground flex-shrink-0 mt-0.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <p class="text-destructive-foreground text-sm font-medium">@errorMessage</p>
+                        </div>
+                    }
+
+                    @* Login Button *@
+                    <button type="submit"
+                            class="w-full py-3.5 font-semibold text-primary-foreground bg-primary rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
+                        <span>Sign In</span>
+                    </button>
+
+                    @* Divider *@
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-card text-tertiary-foreground font-medium">New to Journal?</span>
+                        </div>
+                    </div>
+
+                    @* Sign Up Link *@
+                    <a href="/signup"
+                       class="block w-full py-3.5 text-center font-semibold border-2 rounded-xl transition-all hover-bg"
+                       style="border-color: var(--color-border); color: var(--color-secondary-foreground);">
+                        Create an Account
+                    </a>
+                </div>
+            </EditForm>
+        </div>
+
+        @* Footer Text *@
+        <p class="text-center text-sm text-tertiary-foreground mt-6">
+            Your thoughts, securely stored and beautifully organized.
+        </p>
     </div>
 </div>
 
@@ -63,7 +120,6 @@
     private async Task HandleLogin()
     {
         errorMessage = string.Empty;
-
         using var scope = ServiceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
@@ -75,17 +131,15 @@
                            .FirstOrDefaultAsync(u => u.Email == loginModel.Email &&
                                                      u.PasswordHash == hashedPassword);
 
-       
         if (user != null)
         {
-	        AuthService.Login(user.Id);
-	        NavigationManager.NavigateTo("/", replace: true);
+            AuthService.Login(user.Id);
+            NavigationManager.NavigateTo("/", replace: true);
         }
         else
         {
-	        errorMessage = "Invalid email or password.";
+            errorMessage = "Invalid email or password.";
         }
-
     }
 
     public class LoginModel
@@ -98,4 +152,3 @@
         public string Password { get; set; } = string.Empty;
     }
 }
-

@@ -1,97 +1,301 @@
-@page "/Dashboard"
+@page "/dashboard"
+@using MauiApp2.Models
+@using MauiApp2.Services
+@inject JournalService JournalService
+@inject AuthService AuthService
+@inject NavigationManager Nav
 
-<div id="analyticsView" class="space-y-6">
- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-secondary-foreground">Current Streak</h3>
-                <svg class="text-info" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            </div>
-            <p class="text-3xl font-bold text-foreground">7 days</p>
+<div class="p-4 space-y-6 min-h-screen">
+
+    @if (IsLoading)
+    {
+        <div class="flex flex-col justify-center items-center h-64 space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
+            <p class="text-secondary-foreground font-medium">Loading your insights...</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-secondary-foreground">Longest Streak</h3>
-                <svg class="text-success" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </div>
-            <p class="text-3xl font-bold text-foreground">23 days</p>
+    }
+    else
+    {
+        @* Header Section *@
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                Your Analytics
+            </h2>
+            <p class="text-secondary-foreground">Track your journaling progress and insights</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-secondary-foreground">Total Entries</h3>
-                <svg class="text-accent" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            </div>
-            <p class="text-3xl font-bold text-foreground">142</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-secondary-foreground">Missed Days</h3>
-                <svg class="text-destructive" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </div>
-            <p class="text-3xl font-bold text-foreground">8</p>
-        </div>
+
+        @* Stats Cards *@
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @StatCard("Current Streak", $"{CurrentStreak} days", "hsl(217 91% 60%)",
+            "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'></path></svg>")
+
+        @StatCard("Longest Streak", $"{LongestStreak} days", "hsl(142 71% 45%)",
+                "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='22 12 18 12 15 21 9 3 6 12 2 12'></polyline></svg>")
+
+        @StatCard("Total Entries", TotalEntries.ToString(), "hsl(262 83% 58%)",
+                "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'></path><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'></path></svg>")
+
+        @StatCard("Avg. Words", AvgWordCount.ToString(), "hsl(38 92% 50%)",
+                "<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='17' y1='10' x2='3' y2='10'></line><line x1='21' y1='6' x2='3' y2='6'></line><line x1='21' y1='14' x2='3' y2='14'></line><line x1='17' y1='18' x2='3' y2='18'></line></svg>")
     </div>
 
-    <div class='grid gap-4'>
-        <div></div>
-        <div class="grid grid-cols-1  gap-6">
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-foreground">Mood Distribution</h3>
-                    <svg class="text-tertiary-foreground" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-secondary-foreground">Positive</span>
-                            <span class="font-medium text-success-foreground">65%</span>
+    @* Mood and Insights Section *@
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @* Mood Balance Card *@
+        <div class="bg-card rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 class="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                </svg>
+                Mood Balance
+            </h3>
+            @ProgressBar("Positive", PositivePercent, "hsl(142 71% 45%)")
+            @ProgressBar("Neutral", NeutralPercent, "hsl(211 96% 62%)")
+            @ProgressBar("Negative", NegativePercent, "hsl(0 72% 51%)")
+        </div>
+
+        @* Top Moods Card *@
+        <div class="bg-card rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 class="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Top Specific Moods
+            </h3>
+            @if (!TopMoods.Any())
+                {
+                    <p class="text-tertiary-foreground italic text-sm">No mood data yet. Start journaling!</p>
+                }
+                else
+                {
+                    @foreach (var mood in TopMoods)
+                    {
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-sm text-foreground font-medium w-24 truncate">@mood.Key</span>
+                            <div class="flex-1 bg-muted rounded-full h-2.5">
+                                <div class="h-2.5 rounded-full transition-all duration-700"
+                                     style="width:@(GetRelativeWidth(mood.Value, TopMoods.FirstOrDefault().Value))%; background-color: hsl(211 96% 62%);"></div>
+                            </div>
+                            <span class="text-sm font-bold text-info-foreground">@mood.Value</span>
                         </div>
-                        <div class="w-full bg-muted rounded-full h-3">
-                            <div class="border border-success bg-success h-3 rounded-full" style="width: 65%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-secondary-foreground">Neutral</span>
-                            <span class="font-medium text-info-foreground">25%</span>
-                        </div>
-                        <div class="w-full bg-muted rounded-full h-3">
-                            <div class="border border-info bg-info h-3 rounded-full" style="width: 25%;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-secondary-foreground">Negative</span>
-                            <span class="font-medium text-destructive-foreground">10%</span>
-                        </div>
-                        <div class="w-full bg-muted rounded-full h-3">
-                            <div class="border-destructive bg-destructive border h-3 rounded-full" style="width: 10%;"></div>
-                        </div>
-                    </div>
+                    }
+                }
+            </div>
+        </div>
+
+        @* Tags Section *@
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @* Tag Cloud Card *@
+            <div class="bg-card rounded-2xl shadow-lg p-6 border border-gray-200">
+                <h3 class="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    Most Used Tags
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    @if (!TagCounts.Any())
+                    {
+                        <p class="text-tertiary-foreground italic text-sm">No tags found in your entries.</p>
+                    }
+                    @foreach (var tag in TagCounts.Take(12))
+                    {
+                        <span class="px-4 py-2 bg-accent-light text-accent-foreground rounded-xl border border-accent-border  transition-all hover:shadow-md flex items-center"
+                              style="font-size:16px">
+                            @tag.Key
+                        </span>
+                    }
                 </div>
             </div>
 
-
-        </div>
-
-        <div class="grid grid-cols-1 gap-6">
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-foreground">Most Used Tags</h3>
-                    <svg class="text-tertiary-foreground" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 16px;">Work (45)</span>
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 15px;">Health (40)</span>
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 14px;">Personal Growth (35)</span>
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 13px;">Exercise (30)</span>
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 12px;">Family (25)</span>
-                    <span class="px-4 py-2 bg-muted text-accent-foreground rounded-lg border border-accent" style="font-size: 11px;">Reading (20)</span>
-                </div>
+            @* Tag Breakdown Card *@
+            <div class="bg-card rounded-2xl shadow-lg p-6 border border-gray-200">
+                <h3 class="text-lg font-bold text-foreground mb-5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Tag Breakdown
+                </h3>
+                @if (!TagBreakdown.Any())
+                {
+                    <p class="text-tertiary-foreground italic text-sm">No tag data available.</p>
+                }
+                else
+                {
+                    @foreach (var item in TagBreakdown.Take(5))
+                    {
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="text-sm text-foreground font-medium w-32 truncate">@item.Name</span>
+                            <div class="flex-1 bg-muted rounded-full h-2.5">
+                                <div class="h-2.5 rounded-full transition-all duration-700"
+                                     style="width:@item.Percent%; background-color: hsl(262 83% 58%);"></div>
+                            </div>
+                            <span class="text-sm font-bold text-accent-foreground">@item.Percent%</span>
+                        </div>
+                    }
+                }
             </div>
         </div>
-        <div></div>
-    </div>
-
-    
+    }
 </div>
+
+@code {
+    private bool IsLoading = true;
+    private int CurrentStreak;
+    private int LongestStreak;
+    private int TotalEntries;
+    private int AvgWordCount;
+
+    private int PositivePercent;
+    private int NeutralPercent;
+    private int NegativePercent;
+
+    private List<KeyValuePair<string, int>> TopMoods = new();
+    private List<KeyValuePair<string, int>> TagCounts = new();
+    private List<(string Name, int Percent)> TagBreakdown = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!AuthService.IsLoggedIn || AuthService.UserId == null)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var entries = await JournalService.GetAllEntriesForUser(AuthService.UserId.Value);
+        ProcessDashboardData(entries);
+        IsLoading = false;
+    }
+
+    private void ProcessDashboardData(List<JournalEntry> entries)
+    {
+        TotalEntries = entries.Count;
+        if (!entries.Any()) return;
+
+        // 1. Basic Stats
+        AvgWordCount = (int)entries.Average(e => e.WordCount);
+        CalculateStreaks(entries);
+
+        // 2. Mood Processing
+        var allMoods = entries
+            .SelectMany(e => new[] { e.PrimaryMood, e.SecondaryMood1, e.SecondaryMood2 })
+            .Where(m => !string.IsNullOrEmpty(m))
+            .ToList();
+
+        TopMoods = allMoods.GroupBy(m => m)
+                           .OrderByDescending(g => g.Count())
+                           .Take(5)
+                           .Select(g => new KeyValuePair<string, int>(g.Key!, g.Count()))
+                           .ToList();
+
+        CategorizeSentiment(allMoods);
+
+        // 3. Tag Processing (Splitting comma-separated strings)
+        var allTags = entries
+            .Where(e => !string.IsNullOrWhiteSpace(e.Tags))
+            .SelectMany(e => e.Tags!.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            .Select(t => t.Trim())
+            .ToList();
+
+        TagCounts = allTags.GroupBy(t => t)
+                           .OrderByDescending(g => g.Count())
+                           .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+                           .ToList();
+
+        if (allTags.Any())
+        {
+            TagBreakdown = TagCounts
+                .Select(t => (t.Key, (int)Math.Round((double)t.Value / allTags.Count * 100)))
+                .ToList();
+        }
+    }
+
+    private void CalculateStreaks(List<JournalEntry> entries)
+    {
+        var dates = entries.Select(e => e.EntryDate.Date).Distinct().OrderByDescending(d => d).ToList();
+
+        // Current Streak
+        int current = 0;
+        DateTime checkDate = DateTime.Today;
+
+        if (dates.FirstOrDefault() == DateTime.Today || dates.FirstOrDefault() == DateTime.Today.AddDays(-1))
+        {
+            foreach (var date in dates)
+            {
+                if (date == checkDate || date == checkDate.AddDays(-1))
+                {
+                    current++;
+                    checkDate = date;
+                }
+                else break;
+            }
+        }
+        CurrentStreak = current;
+
+        // Longest Streak
+        int max = 0, temp = 0;
+        var ascendingDates = dates.OrderBy(d => d).ToList();
+        for (int i = 0; i < ascendingDates.Count; i++)
+        {
+            if (i > 0 && ascendingDates[i] == ascendingDates[i - 1].AddDays(1)) temp++;
+            else temp = 1;
+
+            if (temp > max) max = temp;
+        }
+        LongestStreak = max;
+    }
+
+    private void CategorizeSentiment(List<string?> moods)
+    {
+        var posSet = new[] { "Happy", "Grateful", "Excited", "Calm", "Joy" };
+        var negSet = new[] { "Sad", "Angry", "Anxious", "Stressed", "Tired" };
+
+        int pCount = moods.Count(m => posSet.Any(p => m!.Contains(p, StringComparison.OrdinalIgnoreCase)));
+        int nCount = moods.Count(m => negSet.Any(n => m!.Contains(n, StringComparison.OrdinalIgnoreCase)));
+
+        if (moods.Count > 0)
+        {
+            PositivePercent = (pCount * 100) / moods.Count;
+            NegativePercent = (nCount * 100) / moods.Count;
+            NeutralPercent = 100 - (PositivePercent + NegativePercent);
+        }
+    }
+
+    private double GetRelativeWidth(int value, int max) => max == 0 ? 0 : (double)value / max * 100;
+
+    private int GetTagFontSize(int count)
+    {
+        int max = TagCounts.FirstOrDefault().Value;
+        return max <= 1 ? 14 : 12 + (int)((double)count / max * 10);
+    }
+
+    // UI Helpers
+    RenderFragment StatCard(string title, string value, string color, string icon) => @<div class="bg-card rounded-2xl shadow-lg p-5 border border-gray-200 hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[10px] uppercase tracking-wider font-bold text-tertiary-foreground">@title</h3>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="color: @color;">
+                @((MarkupString)icon)
+            </div>
+        </div>
+        <p class="text-2xl md:text-3xl font-black" style="color: @color;">@value</p>
+    </div>;
+
+    RenderFragment ProgressBar(string label, int percent, string barColor) => @<div class="mb-5">
+        <div class="flex justify-between text-sm font-semibold mb-2">
+            <span class="text-foreground">@label</span>
+            <span style="color: @barColor;">@percent%</span>
+        </div>
+        <div class="w-full bg-muted rounded-full h-3 overflow-hidden">
+            <div class="h-3 rounded-full transition-all duration-700" style="width:@percent%; background-color: @barColor;"></div>
+        </div>
+    </div>;
+}

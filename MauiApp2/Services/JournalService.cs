@@ -13,19 +13,27 @@ namespace MauiApp2.Services
             _context = context;
         }
 
-        // --- ADD THIS METHOD ---
         public async Task<List<JournalEntry>> GetAllEntriesForUser(int userId)
         {
             return await _context.JournalEntries
+                .AsNoTracking()
                 .Where(j => j.UserId == userId)
-                .OrderByDescending(j => j.EntryDate) // Shows newest at the top
+                .OrderByDescending(j => j.EntryDate)
                 .ToListAsync();
         }
 
-        // --- ADD THIS METHOD ---
         public async Task DeleteEntry(JournalEntry entry)
         {
-            _context.JournalEntries.Remove(entry);
+            // Find and attach the entity if not tracked
+            var tracked = _context.JournalEntries.Local.FirstOrDefault(e => e.EntryId == entry.EntryId);
+            if (tracked != null)
+            {
+                _context.JournalEntries.Remove(tracked);
+            }
+            else
+            {
+                _context.JournalEntries.Remove(entry);
+            }
             await _context.SaveChangesAsync();
         }
 
@@ -33,6 +41,7 @@ namespace MauiApp2.Services
         {
             var targetDate = date.Date;
             return await _context.JournalEntries
+                .AsNoTracking()
                 .FirstOrDefaultAsync(j => j.UserId == userId && j.EntryDate.Date == targetDate);
         }
 
@@ -40,13 +49,23 @@ namespace MauiApp2.Services
         {
             if (string.IsNullOrWhiteSpace(entry.SecondaryMood1)) entry.SecondaryMood1 = null;
             if (string.IsNullOrWhiteSpace(entry.SecondaryMood2)) entry.SecondaryMood2 = null;
+
             try
             {
-                var existingEntry = await GetEntryByDate(entry.UserId, entry.EntryDate);
+                // Check if there's already a tracked instance
+                var trackedEntity = _context.JournalEntries.Local
+                    .FirstOrDefault(e => e.EntryId == entry.EntryId);
 
-                if (existingEntry != null)
+                if (trackedEntity != null)
                 {
-                    _context.JournalEntries.Update(existingEntry);
+                    // If already tracked, detach it first
+                    _context.Entry(trackedEntity).State = EntityState.Detached;
+                }
+
+                // Now safely update or add
+                if (entry.EntryId > 0)
+                {
+                    _context.JournalEntries.Update(entry);
                 }
                 else
                 {
@@ -57,7 +76,6 @@ namespace MauiApp2.Services
             }
             catch (Exception ex)
             {
-                // LOOK AT YOUR "OUTPUT" WINDOW IN VISUAL STUDIO FOR THIS:
                 var innerMsg = ex.InnerException?.Message ?? "No inner exception";
                 System.Diagnostics.Debug.WriteLine($"CRITICAL DATABASE ERROR: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"INNER ERROR: {innerMsg}");

@@ -4,44 +4,139 @@
 @using Microsoft.EntityFrameworkCore
 @using MauiApp2.Services
 @inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
 
-<div class="flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold text-center text-gray-800">Sign-Up</h2>
-
-        <EditForm Model="model" OnValidSubmit="HandleSignup">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div>
-                <label class="block mb-1 text-gray-600">Email</label>
-                <InputText @bind-Value="model.Email"
-                           class="w-full px-4 py-2 border rounded-lg" />
+<div class="flex items-center justify-center min-h-screen bg-muted p-4">
+    <div class="w-full max-w-md">
+        @* Logo/Header Section *@
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-lg mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
             </div>
+            <h1 class="text-3xl font-bold text-foreground mb-2">Create Account</h1>
+            <p class="text-secondary-foreground">Start your journaling journey today</p>
+        </div>
 
-            <div>
-                <label class="block mb-1 text-gray-600">Password</label>
-                <InputText @bind-Value="model.Password"
-                           type="password"
-                           class="w-full px-4 py-2 border rounded-lg" />
-            </div>
+        @* Signup Card *@
+        <div class="bg-card rounded-2xl shadow-xl p-8 border border-gray-200">
+            <EditForm Model="model" OnValidSubmit="HandleSignup">
+                <DataAnnotationsValidator />
 
-            <div>
-                <label class="block mb-1 text-gray-600">Retype Password</label>
-                <InputText @bind-Value="model.ConfirmPassword"
-                           type="password"
-                           class="w-full px-4 py-2 border rounded-lg" />
-            </div>
+                <div class="space-y-5">
+                    @* Email Field *@
+                    <div>
+                        <label class="block mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            Email Address
+                        </label>
+                        <InputText @bind-Value="model.Email"
+                                   type="email"
+                                   placeholder="your.email@example.com"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-background text-foreground"
+                                   style="border-color: var(--color-input);" />
+                        <ValidationMessage For="@(() => model.Email)" class="text-destructive-foreground text-sm mt-1" />
+                    </div>
 
-            <button type="submit" class="w-full py-2 mt-4 font-semibold text-white bg-blue-600 rounded-lg">
-                Create Account
-            </button>
-        </EditForm>
+                    @* Password Field *@
+                    <div>
+                        <label class="block mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Password
+                        </label>
+                        <InputText @bind-Value="model.Password"
+                                   type="password"
+                                   placeholder="Minimum 6 characters"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-background text-foreground"
+                                   style="border-color: var(--color-input);" />
+                        <ValidationMessage For="@(() => model.Password)" class="text-destructive-foreground text-sm mt-1" />
+                    </div>
 
-        @if (!string.IsNullOrEmpty(Message))
-        {
-            <p class="text-center text-red-500">@Message</p>
-        }
+                    @* Confirm Password Field *@
+                    <div>
+                        <label class="block mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Confirm Password
+                        </label>
+                        <InputText @bind-Value="model.ConfirmPassword"
+                                   type="password"
+                                   placeholder="Re-enter your password"
+                                   class="w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-background text-foreground"
+                                   style="border-color: var(--color-input);" />
+                        <ValidationMessage For="@(() => model.ConfirmPassword)" class="text-destructive-foreground text-sm mt-1" />
+                    </div>
+
+                    @* Success Message *@
+                    @if (!string.IsNullOrEmpty(Message) && Message.Contains("successfully"))
+                    {
+                        <div class="bg-success-light border-2 border-success-border rounded-xl p-4 flex items-start gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success-foreground flex-shrink-0 mt-0.5">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <p class="text-success-foreground text-sm font-medium">@Message</p>
+                        </div>
+                    }
+
+                    @* Error Message *@
+                    @if (!string.IsNullOrEmpty(Message) && !Message.Contains("successfully"))
+                    {
+                        <div class="bg-destructive-light border-2 border-destructive-border rounded-xl p-4 flex items-start gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-destructive-foreground flex-shrink-0 mt-0.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <p class="text-destructive-foreground text-sm font-medium">@Message</p>
+                        </div>
+                    }
+
+                    @* Create Account Button *@
+                    <button type="submit"
+                            class="w-full py-3.5 font-semibold text-primary-foreground bg-primary rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <line x1="19" y1="8" x2="19" y2="14"></line>
+                            <line x1="22" y1="11" x2="16" y2="11"></line>
+                        </svg>
+                        <span>Create Account</span>
+                    </button>
+
+                    @* Divider *@
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-card text-tertiary-foreground font-medium">Already have an account?</span>
+                        </div>
+                    </div>
+
+                    @* Login Link *@
+                    <a href="/login"
+                       class="block w-full py-3.5 text-center font-semibold border-2 rounded-xl transition-all hover-bg"
+                       style="border-color: var(--color-border); color: var(--color-secondary-foreground);">
+                        Sign In Instead
+                    </a>
+                </div>
+            </EditForm>
+        </div>
+
+        @* Footer Text *@
+        <p class="text-center text-sm text-tertiary-foreground mt-6">
+            By creating an account, you agree to keep your thoughts safe with us.
+        </p>
     </div>
 </div>
 
@@ -51,6 +146,7 @@
 
     private async Task HandleSignup()
     {
+        Message = null;
         await DbContext.Database.EnsureCreatedAsync();
 
         if (await DbContext.Users.AnyAsync(u => u.Email == model.Email))
@@ -74,7 +170,11 @@
         DbContext.Users.Add(user);
         await DbContext.SaveChangesAsync();
 
-        Message = "Account created successfully 🎉";
+        Message = "Account created successfully! 🎉";
+
+        // Optional: Auto-redirect to login after 2 seconds
+        await Task.Delay(2000);
+        NavigationManager.NavigateTo("/login");
     }
 
     public class SignupModel

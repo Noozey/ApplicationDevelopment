@@ -214,7 +214,44 @@
         new MoodCategory("NEGATIVE", new() { "Sad", "Angry", "Stressed", "Anxious" })
     };
 
-    private List<string> SecondaryOptions = new() { "Productive", "Tired", "Social", "Quiet", "Inspired", "Hungry" };
+    private List<string> SecondaryOptions = new()
+    {
+	    "Productive",
+	    "Tired",
+	    "Energetic",
+	    "Restless",
+	    "Relaxed",
+	    "Hungry",
+	    "Sick",
+	    "Inspired",
+	    "Motivated",
+	    "Happy",
+	    "Calm",
+	    "Anxious",
+	    "Stressed",
+	    "Overwhelmed",
+	    "Frustrated",
+	    "Lonely",
+	    "Content",
+	    "Focused",
+	    "Distracted",
+	    "Creative",
+	    "Reflective",
+	    "Thoughtful",
+	    "Confused",
+	    "Social",
+	    "Quiet",
+	    "Introverted",
+	    "Talkative",
+	    "Connected",
+	    "Isolated",
+	    "Grateful",
+	    "Hopeful",
+	    "Proud",
+	    "Self-Critical",
+	    "Mindful"
+    };
+
 
     public record MoodCategory(string Name, List<string> Moods);
 }

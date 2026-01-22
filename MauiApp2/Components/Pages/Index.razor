@@ -86,6 +86,11 @@ else
                         <span class="px-4 py-2 rounded-full text-sm border-2 bg-muted text-foreground font-medium shadow-sm"
                               style="border-color: var(--color-muted);">@entry.SecondaryMood1</span>
                     }
+					 @if (!string.IsNullOrEmpty(entry.SecondaryMood2))
+                    {
+                        <span class="px-4 py-2 rounded-full text-sm border-2 bg-muted text-foreground font-medium shadow-sm"
+                              style="border-color: var(--color-muted);">@entry.SecondaryMood2</span>
+                    }
                 </div>
 
                 <p class="text-foreground mb-4 line-clamp-3" style="line-height: 1.6;">
