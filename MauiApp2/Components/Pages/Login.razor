@@ -133,6 +133,7 @@
 
         if (user != null)
         {
+            await Task.Delay(100);
             AuthService.Login(user.Id);
             NavigationManager.NavigateTo("/", replace: true);
         }
