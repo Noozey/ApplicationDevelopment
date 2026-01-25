@@ -106,4 +106,8 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="wwwroot\js\quill-editor.js" />
+    </ItemGroup>
+
 </Project>

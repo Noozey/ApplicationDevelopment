@@ -1,39 +1,65 @@
-@page "/Create"
+﻿@page "/Create"
 @using MauiApp2.Models
 @using MauiApp2.Services
 @inject JournalService JournalService
 @inject AuthService AuthService
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 
 <div class="max-w-6xl mx-auto p-4">
     <div class="bg-card rounded-2xl shadow-xl p-8 mb-6 border border-gray-200">
         @* Header Section *@
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h2 class="text-3xl font-bold text-foreground mb-2">@(isEditMode ? "Edit Entry" : "New Entry")</h2>
-                <input type="date"
-                       @bind="newEntry.EntryDate"
-                       readonly
-                       class="mt-1 text-sm px-3 py-1.5 rounded-lg bg-muted text-muted-foreground cursor-not-allowed border border-gray-200" />
+                <h2 class="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: var(--color-primary);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </div>
+                    @(isEditMode ? "Edit Entry" : "New Entry")
+                </h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-tertiary-foreground">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <input type="date"
+                           @bind="newEntry.EntryDate"
+                           readonly
+                           class="text-sm px-3 py-1.5 rounded-lg bg-muted text-muted-foreground cursor-not-allowed border border-gray-200 font-medium" />
+                </div>
             </div>
             <button @onclick='() => Nav.NavigateTo("/")'
-                    class="p-2 rounded-lg transition-all hover-bg text-secondary-foreground hover:text-foreground">
+                    class="p-3 rounded-xl transition-all hover-bg text-secondary-foreground hover:text-foreground">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
 
         @* Primary Mood Selection *@
-        <div class="mb-8">
+        <div class="mb-8 bg-muted/30 rounded-2xl p-6 border border-gray-200">
             <label class="block text-base font-bold text-foreground mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
-                How are you feeling today?
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-success-light);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-success-foreground);">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </div>
+                <span>How are you feeling today?</span>
                 <span class="text-destructive">*</span>
             </label>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach (var cat in MoodCategories)
                 {
                     <div class="space-y-3">
-                        <p class="text-xs font-bold uppercase tracking-wider text-tertiary-foreground mb-2">@cat.Name</p>
+                        <div class="flex items-center gap-2 mb-3">
+                         <p class="text-xs font-bold uppercase tracking-wider text-foreground">@cat.Name</p>
+                        </div>
                         <div class="flex flex-col gap-2">
                             @foreach (var mood in cat.Moods)
                             {
@@ -61,9 +87,15 @@
 
         @* Secondary Moods Selection *@
         <div class="mb-8">
-            <label class="block text-base font-bold text-foreground mb-3 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                Secondary Moods (Up to 2)
+            <label class="block text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: var(--color-accent-light);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent-foreground);">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                </div>
+                <span>Secondary Moods</span>
+                <span class="text-xs font-medium text-tertiary-foreground">(Choose up to 2)</span>
             </label>
             <div class="flex flex-wrap gap-2">
                 @foreach (var mood in SecondaryOptions)
@@ -71,8 +103,8 @@
                     bool isSelected = newEntry.SecondaryMood1 == mood || newEntry.SecondaryMood2 == mood;
                     <button @onclick="() => ToggleSecondaryMood(mood)"
                             type="button"
-                            class="px-5 py-2.5 rounded-full text-sm font-medium border-2 transition-all shadow-sm"
-                            style="@(isSelected ? "background-color: var(--color-primary); border-color: var(--color-accent-border); color:white;" : "background-color: white; border-color: var(--color-gray-200); color: var(--color-gray-600);")">
+                            class="px-5 py-2.5 rounded-full text-sm font-medium border-2 transition-all shadow-sm hover:shadow-md"
+                            style="@(isSelected ? " border-color: var(--color-accent-border); color: var(--color-accent-foreground);" : "background-color: white; border-color: var(--color-gray-200); color: var(--color-gray-600);")">
                         @mood
                     </button>
                 }
@@ -83,11 +115,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
             <div>
                 <label class="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-info-foreground);">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
                     Category
                 </label>
                 <select @bind="newEntry.Category"
-                        class="w-full p-3 border-2 rounded-xl bg-white text-foreground focus:outline-none focus:ring-2 transition-all"
+                        class="w-full p-3 border-2 rounded-xl bg-white text-foreground focus:outline-none focus:ring-2 transition-all font-medium"
                         style="border-color: var(--color-input); focus:border-color: var(--color-primary);">
                     <option value="Personal">Personal</option>
                     <option value="Work">Work</option>
@@ -97,7 +134,10 @@
             </div>
             <div>
                 <label class="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-accent-foreground);">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
                     Tags
                 </label>
                 <input type="text"
@@ -112,43 +152,108 @@
         <div class="mb-8">
             <div class="flex justify-between items-center mb-3">
                 <label class="text-base font-bold text-foreground flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                    Write your thoughts...
+                   <span>Write your thoughts...</span>
                 </label>
-                <span class="text-xs font-mono px-3 py-1 rounded-full bg-info-light text-info-foreground font-semibold">
-                    @newEntry.WordCount words
-                </span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono px-4 py-2 rounded-full font-semibold border-2 shadow-sm"
+                          style="background-color: var(--color-info-light); color: var(--color-info-foreground); border-color: var(--color-info-border);">
+                         @newEntry.WordCount words
+                    </span>
+                </div>
             </div>
-            <textarea @bind="newEntry.Content"
-                      @oninput="OnContentInput"
-                      class="w-full h-72 p-4 border-2 rounded-xl focus:outline-none focus:ring-2 resize-none bg-white text-foreground transition-all"
-                      style="border-color: var(--color-input); line-height: 1.8;"
-                      placeholder="What's on your mind? Express yourself freely..."></textarea>
+
+            @* Quill Editor Container *@
+            <div class="bg-white rounded-xl overflow-hidden border-2 shadow-sm" style="border-color: var(--color-input);">
+                <div @ref="quillElement" style="height: 350px;"></div>
+            </div>
+            <p class="text-xs text-tertiary-foreground mt-2 ml-1 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                Express yourself freely. Your thoughts are private and secure.
+            </p>
         </div>
 
         @* Bottom Actions *@
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <div class="flex justify-between items-center gap-3 pt-6 border-t-2 border-gray-200">
             <button @onclick='() => Nav.NavigateTo("/")'
-                    class="px-6 py-3 border-2 rounded-xl font-semibold transition-all hover-bg"
+                    class="px-6 py-3 border-2 rounded-xl font-semibold transition-all hover-bg flex items-center gap-2"
                     style="border-color: var(--color-border); color: var(--color-secondary-foreground);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
                 Cancel
             </button>
             <button @onclick="SaveEntry"
                     disabled="@(string.IsNullOrEmpty(newEntry.PrimaryMood) || string.IsNullOrEmpty(newEntry.Content))"
                     class="px-8 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 font-semibold"
                     style="@((string.IsNullOrEmpty(newEntry.PrimaryMood) || string.IsNullOrEmpty(newEntry.Content)) ? "background-color: var(--color-gray-300); color: var(--color-gray-500); cursor: not-allowed;" : "background-color: var(--color-primary); color: var(--color-primary-foreground);")">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
                 <span>@(isEditMode ? "Update Entry" : "Save Entry")</span>
             </button>
         </div>
     </div>
 </div>
 
+@implements IDisposable
 @code {
+    private ElementReference quillElement;
+    private DotNetObjectReference<Create>? objRef;
     private JournalEntry newEntry = new();
     private bool isEditMode = false;
 
-    // Helper to get colors that match your theme
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("QuillFunctions.initQuill", quillElement, objRef);
+
+            if (!string.IsNullOrEmpty(newEntry.Content))
+            {
+                await JS.InvokeVoidAsync("QuillFunctions.setQuillContent", quillElement, newEntry.Content);
+            }
+        }
+    }
+
+    [JSInvokable]
+    public void UpdateContentFromJS(string htmlContent)
+    {
+        newEntry.Content = htmlContent;
+        UpdateWordCount();
+        StateHasChanged();
+    }
+
+    private void UpdateWordCount()
+    {
+        if (string.IsNullOrWhiteSpace(newEntry.Content))
+        {
+            newEntry.WordCount = 0;
+        }
+        else
+        {
+            var plainText = System.Text.RegularExpressions.Regex.Replace(newEntry.Content, "<.*?>", string.Empty);
+            newEntry.WordCount = plainText.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        }
+    }
+
+    public void Dispose() => objRef?.Dispose();
+
+    private string GetCategoryIconBg(string category) => category switch
+    {
+        "POSITIVE" => "hsl(142 71% 45%)",
+        "NEUTRAL" => "hsl(211 96% 62%)",
+        "NEGATIVE" => "hsl(0 72% 51%)",
+        _ => "hsl(220 9% 46%)"
+    };
+
     private (string bg, string border, string text, string lightBorder, string shadow) GetMoodColors(string category) => category switch
     {
         "POSITIVE" => ("hsl(142 77% 92%)", "hsl(142 71% 45%)", "hsl(142 76% 28%)", "hsl(142 71% 85%)", "rgba(34, 197, 94, 0.15)"),
@@ -189,18 +294,6 @@
         StateHasChanged();
     }
 
-    private void OnContentInput(ChangeEventArgs e)
-    {
-        newEntry.Content = e.Value?.ToString() ?? "";
-        UpdateWordCount();
-    }
-
-    private void UpdateWordCount()
-    {
-        if (string.IsNullOrWhiteSpace(newEntry.Content)) newEntry.WordCount = 0;
-        else newEntry.WordCount = newEntry.Content.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
-    }
-
     private async Task SaveEntry()
     {
         await JournalService.SaveOrUpdateEntry(newEntry);
@@ -214,44 +307,7 @@
         new MoodCategory("NEGATIVE", new() { "Sad", "Angry", "Stressed", "Anxious" })
     };
 
-    private List<string> SecondaryOptions = new()
-    {
-	    "Productive",
-	    "Tired",
-	    "Energetic",
-	    "Restless",
-	    "Relaxed",
-	    "Hungry",
-	    "Sick",
-	    "Inspired",
-	    "Motivated",
-	    "Happy",
-	    "Calm",
-	    "Anxious",
-	    "Stressed",
-	    "Overwhelmed",
-	    "Frustrated",
-	    "Lonely",
-	    "Content",
-	    "Focused",
-	    "Distracted",
-	    "Creative",
-	    "Reflective",
-	    "Thoughtful",
-	    "Confused",
-	    "Social",
-	    "Quiet",
-	    "Introverted",
-	    "Talkative",
-	    "Connected",
-	    "Isolated",
-	    "Grateful",
-	    "Hopeful",
-	    "Proud",
-	    "Self-Critical",
-	    "Mindful"
-    };
-
+    private List<string> SecondaryOptions = new() { "Productive", "Tired", "Energetic", "Restless", "Relaxed", "Hungry", "Sick", "Inspired", "Motivated", "Happy", "Calm", "Anxious", "Stressed", "Overwhelmed", "Frustrated", "Lonely", "Content", "Focused", "Distracted", "Creative", "Reflective", "Thoughtful", "Confused", "Social", "Quiet", "Introverted", "Talkative", "Connected", "Isolated", "Grateful", "Hopeful", "Proud", "Self-Critical", "Mindful" };
 
     public record MoodCategory(string Name, List<string> Moods);
 }
