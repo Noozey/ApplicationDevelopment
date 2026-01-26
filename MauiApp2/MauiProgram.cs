@@ -27,7 +27,7 @@ public static class MauiProgram
             options.UseSqlite($"Data Source={dbPath}")
         );
 
-// Create DB once safely
+        // Create DB once safely
         using var scope = builder.Services.BuildServiceProvider().CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         db.Database.EnsureCreated();
@@ -35,6 +35,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddDbContext<AppDbContext>();
         builder.Services.AddScoped<JournalService>();
+        builder.Services.AddSingleton<ThemeService>();
         return builder.Build();
     }
 }
