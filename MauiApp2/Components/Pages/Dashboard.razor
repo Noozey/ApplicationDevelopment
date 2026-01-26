@@ -272,12 +272,7 @@
 
     private double GetRelativeWidth(int value, int max) => max == 0 ? 0 : (double)value / max * 100;
 
-    private int GetTagFontSize(int count)
-    {
-        int max = TagCounts.FirstOrDefault().Value;
-        return max <= 1 ? 14 : 12 + (int)((double)count / max * 10);
-    }
-
+   
     // UI Helpers
     RenderFragment StatCard(string title, string value, string color, string icon) => @<div class="bg-card rounded-2xl shadow-lg p-5 border border-gray-200 hover:shadow-xl transition-shadow">
         <div class="flex items-center justify-between mb-3">

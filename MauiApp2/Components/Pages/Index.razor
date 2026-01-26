@@ -5,109 +5,260 @@
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 
-<div class="space-y-4">
-    <div class="flex flex-row gap-3 mb-6">
-        <div class="w-full items-center justify-between">
-            @* Data-bind the search input *@
-            <input type="text" @bind="searchTerm" @bind:event="oninput"
-                   placeholder="Search entries..."
-                   class="w-full p-4 border-2 bg-background text-foreground rounded-lg focus:ring-2 focus:border-accent transition-all shadow-sm"
-                   style="border-color: var(--color-muted);">
+<div class="space-y-6">
+    @* Search and Filter Bar *@
+    <div class="flex flex-row gap-3">
+        <div class="flex-1 relative">
+            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-tertiary-foreground">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+            <input type="text" @bind="searchTerm" @bind:event="oninput" @bind:after="ResetPagination"
+                   placeholder="Search by content or mood..."
+                   class="w-full pl-12 pr-4 py-4 border-2 bg-background text-foreground rounded-xl focus:ring-2 focus:border-primary transition-all shadow-sm font-medium"
+                   style="border-color: var(--color-input);">
         </div>
-        <button class="px-6 py-4 border-2 rounded-lg hover-bg hover-border flex items-center gap-2 transition-all flex-shrink-0 shadow-sm font-medium bg-background text-accent-foreground"
-                style="border-color: var(--color-muted);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        <button class="px-6 py-4 border-2 rounded-xl hover-bg hover-border flex items-center gap-2 transition-all flex-shrink-0 shadow-sm font-semibold text-secondary-foreground"
+                style="border-color: var(--color-input); background-color: var(--color-background);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
             <span>Filters</span>
         </button>
     </div>
+
+    @* Results Summary *@
+    @if (allEntries != null && FilteredEntries.Any())
+    {
+        <div class="flex items-center justify-between px-2">
+            <p class="text-sm text-secondary-foreground font-medium">
+                Showing <span class="font-bold text-foreground">@PaginatedEntries.Count()</span> of
+                <span class="font-bold text-foreground">@FilteredEntries.Count()</span>
+                @(FilteredEntries.Count() == 1 ? "entry" : "entries")
+            </p>
+            @if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                <button @onclick="ClearSearch"
+                        class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Clear search
+                </button>
+            }
+        </div>
+    }
 </div>
 
-@if (FilteredEntries == null)
+@if (allEntries == null)
 {
-    <div class="flex justify-center p-10">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-accent"></div>
+    <div class="flex flex-col justify-center items-center p-16">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mb-4"></div>
+        <p class="text-secondary-foreground font-medium">Loading your entries...</p>
     </div>
 }
 else if (!FilteredEntries.Any())
 {
-    <div class="text-center p-12 bg-muted rounded-2xl border-2 border-dashed border-accent">
-        <p class="text-secondary-foreground text-lg mb-2">No journal entries found. Start writing today!</p>
-        <button class="mt-4 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md"
-                @onclick='() => NavigationManager.NavigateTo("/create")'>
-            + Create First Entry
-        </button>
+    <div class="text-center p-16 bg-muted/50 rounded-2xl border-2 border-dashed mt-6" style="border-color: var(--color-border);">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background-color: var(--color-primary); opacity: 0.1;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold text-foreground mb-2">
+            @(string.IsNullOrWhiteSpace(searchTerm) ? "No journal entries yet" : "No matching entries found")
+        </h3>
+        <p class="text-secondary-foreground mb-6">
+            @(string.IsNullOrWhiteSpace(searchTerm) ? "Start your journaling journey today!" : "Try adjusting your search terms")
+        </p>
+        @if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            <button class="px-8 py-3 font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg flex items-center gap-2 mx-auto"
+                    style="background-color: var(--color-primary); color: var(--color-primary-foreground);"
+                    @onclick='() => NavigationManager.NavigateTo("/create")'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create First Entry
+            </button>
+        }
     </div>
 }
 else
 {
-    @foreach (var entry in FilteredEntries)
-    {
-        <div class="bg-background rounded-2xl shadow-md hover:shadow-xl transition-all mb-4 border overflow-hidden"
-             style="border-color: var(--color-muted);">
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
-                    <div class="flex-1">
-                        <h3 class="text-xl font-bold text-foreground mb-1">@entry.EntryDate.ToString("MMMM dd, yyyy")</h3>
-                        <div class="flex gap-2 items-center text-sm text-secondary-foreground">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                            <span>Updated @GetTimeAgo(entry.UpdatedAt)</span>
+    <div class="space-y-4 mt-6">
+        @foreach (var entry in PaginatedEntries)
+        {
+            <div class="bg-card rounded-2xl shadow-md hover:shadow-xl transition-all border overflow-hidden group"
+                 style="border-color: var(--color-border);">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4 flex-wrap gap-3">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-foreground mb-2 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-primary);">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                @entry.EntryDate.ToString("MMMM dd, yyyy")
+                            </h3>
+                            <div class="flex gap-3 items-center text-sm text-tertiary-foreground">
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>@GetTimeAgo(entry.UpdatedAt)</span>
+                                </div>
+                                <span class="w-1 h-1 rounded-full bg-tertiary-foreground"></span>
+                                <div class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="17" y1="10" x2="3" y2="10"></line>
+                                        <line x1="21" y1="6" x2="3" y2="6"></line>
+                                        <line x1="21" y1="14" x2="3" y2="14"></line>
+                                        <line x1="17" y1="18" x2="3" y2="18"></line>
+                                    </svg>
+                                    <span>@entry.WordCount words</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        @* Edit Button *@
-                        @if (entry.EntryDate.Date == DateTime.Today)
-                        {
-                            <button class="p-2 rounded-lg transition-colors text-info-foreground"
-									onmouseover="this.style.backgroundColor='var(--color--light, #fee2e2)';"
-									onmouseout="this.style.backgroundColor='transparent';"
-                                    @onclick="() => EditEntry(entry.EntryDate)">
+                        <div class="flex gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            @if (entry.EntryDate.Date == DateTime.Today)
+                            {
+                                <button class="p-2.5 rounded-xl transition-all hover:bg-info-light border-2 border-transparent hover:border-info-border"
+                                        style="color: var(--color-info-foreground);"
+                                        title="Edit entry"
+                                        @onclick="() => EditEntry(entry.EntryDate)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            }
+                            <button class="p-2.5 rounded-xl transition-all hover:bg-destructive-light border-2 border-transparent hover:border-destructive-border"
+                                    style="color: var(--color-destructive-foreground);"
+                                    title="Delete entry"
+                                    @onclick="() => DeleteEntry(entry)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                 </svg>
                             </button>
-                        }
-                        @* Delete Button *@
-                        <button class="p-2 rounded-lg transition-colors text-destructive-foreground"
-                                style="background-color: transparent;"
-                                onmouseover="this.style.backgroundColor='var(--color-destructive-light, #fee2e2)';"
-                                onmouseout="this.style.backgroundColor='transparent';"
-                                @onclick="() => DeleteEntry(entry)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
+                        </div>
                     </div>
-                </div>
 
-                @* Mood Badges *@
-                <div class="flex gap-2 mb-4 flex-wrap">
-                    <span class="px-4 py-2 rounded-full text-sm border-2 border-accent bg-primay text-accent-foreground font-semibold shadow-sm">@entry.PrimaryMood</span>
-                    @if (!string.IsNullOrEmpty(entry.SecondaryMood1))
-                    {
-                        <span class="px-4 py-2 rounded-full text-sm border-2 bg-muted text-foreground font-medium shadow-sm"
-                              style="border-color: var(--color-muted);">@entry.SecondaryMood1</span>
-                    }
-					 @if (!string.IsNullOrEmpty(entry.SecondaryMood2))
-                    {
-                        <span class="px-4 py-2 rounded-full text-sm border-2 bg-muted text-foreground font-medium shadow-sm"
-                              style="border-color: var(--color-muted);">@entry.SecondaryMood2</span>
-                    }
-                </div>
+                    @* Mood Badges *@
+                    <div class="flex gap-2 mb-4 flex-wrap">
+                        <span class="px-4 py-2 rounded-full text-sm font-semibold shadow-sm border-2"
+                              style="background-color: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary);">
+                            @entry.PrimaryMood
+                        </span>
+                        @if (!string.IsNullOrEmpty(entry.SecondaryMood1))
+                        {
+                            <span class="px-4 py-2 rounded-full text-sm font-medium shadow-sm border-2 bg-info-light"
+                                  style="border-color: var(--color-info-border); color: var(--color-info-foreground);">
+                                @entry.SecondaryMood1
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(entry.SecondaryMood2))
+                        {
+                            <span class="px-4 py-2 rounded-full text-sm font-medium shadow-sm border-2 bg-info-light"
+                                  style="border-color: var(--color-info-border); color: var(--color-info-foreground);">
+                                @entry.SecondaryMood2
+                            </span>
+                        }
+                    </div>
 
-                <p class="text-foreground mb-4 line-clamp-3" style="line-height: 1.6;">
-                    @entry.Content
-                </p>
+                    @* Content Preview *@
+                    <p class="text-foreground mb-4 line-clamp-3 leading-relaxed">@entry.Content</p>
 
-                @* Tags *@
-                <div class="flex flex-wrap gap-2">
+                    @* Tags *@
                     @if (!string.IsNullOrEmpty(entry.Tags))
                     {
-                        @foreach (var tag in entry.Tags.Split(','))
-                        {
-                            <span class="px-3 py-1.5 bg-success-light text-success-foreground border-success rounded-lg text-xs border font-medium shadow-sm">@tag.Trim()</span>
-                        }
+                        <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-200">
+                            @foreach (var tag in entry.Tags.Split(','))
+                            {
+                                <span class="px-3 py-1.5 bg-accent-light rounded-lg text-xs font-medium border shadow-sm"
+                                      style="border-color: var(--color-accent-border); color: var(--color-accent-foreground);">
+                                    #@tag.Trim()
+                                </span>
+                            }
+                        </div>
                     }
                 </div>
             </div>
+        }
+    </div>
+
+    @* Pagination UI *@
+    @if (TotalPages > 1)
+    {
+        <div class="flex items-center justify-between mt-8 mb-8 px-2">
+            <button @onclick="PreviousPage"
+                    disabled="@(currentPage == 1)"
+                    class="px-5 py-2.5 rounded-xl border-2 font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-2"
+                    style="border-color: var(--color-border); background-color: var(--color-background); color: var(--color-foreground);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Previous
+            </button>
+
+            <div class="flex items-center gap-2">
+                @if (TotalPages <= 7)
+                {
+                    @for (int i = 1; i <= TotalPages; i++)
+                    {
+                        var pageNumber = i;
+                        <button @onclick="() => GoToPage(pageNumber)"
+                                class="w-10 h-10 rounded-xl border-2 font-bold transition-all"
+                                style="@(currentPage == pageNumber ? "background-color: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary);" : "background-color: var(--color-background); border-color: var(--color-border); color: var(--color-foreground);")">
+                            @pageNumber
+                        </button>
+                    }
+                }
+                else
+                {
+                    @* Show smart pagination for many pages *@
+                    @if (currentPage > 3)
+                    {
+                        <button @onclick="() => GoToPage(1)" class="w-10 h-10 rounded-xl border-2 font-bold transition-all" style="background-color: var(--color-background); border-color: var(--color-border); color: var(--color-foreground);">1</button>
+                        <span class="text-tertiary-foreground">...</span>
+                    }
+
+                    @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(TotalPages, currentPage + 2); i++)
+                    {
+                        var pageNumber = i;
+                        <button @onclick="() => GoToPage(pageNumber)"
+                                class="w-10 h-10 rounded-xl border-2 font-bold transition-all"
+                                style="@(currentPage == pageNumber ? "background-color: var(--color-primary); color: var(--color-primary-foreground); border-color: var(--color-primary);" : "background-color: var(--color-background); border-color: var(--color-border); color: var(--color-foreground);")">
+                            @pageNumber
+                        </button>
+                    }
+
+                    @if (currentPage < TotalPages - 2)
+                    {
+                        <span class="text-tertiary-foreground">...</span>
+                        <button @onclick="() => GoToPage(TotalPages)" class="w-10 h-10 rounded-xl border-2 font-bold transition-all" style="background-color: var(--color-background); border-color: var(--color-border); color: var(--color-foreground);">@TotalPages</button>
+                    }
+                }
+            </div>
+
+            <button @onclick="NextPage"
+                    disabled="@(currentPage == TotalPages)"
+                    class="px-5 py-2.5 rounded-xl border-2 font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted flex items-center gap-2"
+                    style="border-color: var(--color-border); background-color: var(--color-background); color: var(--color-foreground);">
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
         </div>
     }
 }
@@ -116,12 +267,21 @@ else
     private List<JournalEntry> allEntries;
     private string searchTerm = "";
 
-    // Filtering logic
+    private int currentPage = 1;
+    private int pageSize = 5;
+
     private IEnumerable<JournalEntry> FilteredEntries =>
         string.IsNullOrWhiteSpace(searchTerm)
-        ? allEntries
+        ? allEntries ?? new List<JournalEntry>()
         : allEntries.Where(e => e.Content.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                                 e.PrimaryMood.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<JournalEntry> PaginatedEntries =>
+        FilteredEntries
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize);
+
+    private int TotalPages => (int)Math.Ceiling((double)FilteredEntries.Count() / pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,28 +292,48 @@ else
             return;
         }
 
-        // Fetch all entries for this user, ordered by newest first
         allEntries = await JournalService.GetAllEntriesForUser(userId);
+    }
+
+    private void ResetPagination() => currentPage = 1;
+    private void ClearSearch() => searchTerm = "";
+    private void GoToPage(int page) => currentPage = page;
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages) currentPage++;
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1) currentPage--;
     }
 
     private void EditEntry(DateTime date)
     {
-        // Navigate to create page (our create page logic already handles loading existing data for a date)
         NavigationManager.NavigateTo("/create");
     }
 
     private async Task DeleteEntry(JournalEntry entry)
     {
-        // Add a Delete method to your JournalService
-        await JournalService.DeleteEntry(entry);
-        allEntries.Remove(entry);
+        var confirmed = await App.Current.MainPage.DisplayAlert("Delete", "Are you sure?", "Yes", "No");
+        if (confirmed)
+        {
+            await JournalService.DeleteEntry(entry);
+            allEntries.Remove(entry);
+
+            if (!PaginatedEntries.Any() && currentPage > 1)
+            {
+                currentPage--;
+            }
+        }
     }
 
     private string GetTimeAgo(DateTime dateTime)
     {
         var span = DateTime.Now - dateTime;
-        if (span.TotalDays > 1) return $"{(int)span.TotalDays} days ago";
-        if (span.TotalHours > 1) return $"{(int)span.TotalHours} hours ago";
+        if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
+        if (span.TotalHours >= 1) return $"{(int)span.TotalHours}h ago";
         return "Just now";
     }
 }
