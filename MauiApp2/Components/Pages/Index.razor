@@ -27,6 +27,16 @@
             </svg>
             <span>Filters</span>
         </button>
+        <button @onclick="DownloadPdf" 
+                class="px-6 py-4 border-2 rounded-xl hover:bg-primary hover:text-white flex items-center gap-2 transition-all shadow-sm font-semibold text-secondary-foreground"
+                style="border-color: var(--color-input);">
+	        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+		        <polyline points="7 10 12 15 17 10"></polyline>
+		        <line x1="12" y1="15" x2="12" y2="3"></line>
+	        </svg>
+	        <span>Export PDF</span>
+        </button>
     </div>
 
     @* Results Summary *@
@@ -176,7 +186,9 @@ else
                     </div>
 
                     @* Content Preview *@
-                    <p class="text-foreground mb-4 line-clamp-3 leading-relaxed">@entry.Content</p>
+                    <div class="journal-rich-text mb-4  text-foreground">
+	                    @((MarkupString)entry.Content)
+                    </div>
 
                     @* Tags *@
                     @if (!string.IsNullOrEmpty(entry.Tags))
@@ -186,7 +198,7 @@ else
                             {
                                 <span class="px-3 py-1.5 bg-accent-light rounded-lg text-xs font-medium border shadow-sm"
                                       style="border-color: var(--color-accent-border); color: var(--color-accent-foreground);">
-                                    #@tag.Trim()
+                                    @tag.Trim()
                                 </span>
                             }
                         </div>
@@ -263,6 +275,37 @@ else
     }
 }
 
+<style>
+          b,
+         strong {
+            font-weight: 700;
+            color: var(--color-primary);         }
+
+         i,
+        em {
+            font-style: italic;
+        }
+
+        p {
+            margin-bottom: 0.75rem;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-left: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: bold;
+            line-height: 1.25;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+</style>
+
 @code {
     private List<JournalEntry> allEntries;
     private string searchTerm = "";
@@ -335,5 +378,31 @@ else
         if (span.TotalDays >= 1) return $"{(int)span.TotalDays}d ago";
         if (span.TotalHours >= 1) return $"{(int)span.TotalHours}h ago";
         return "Just now";
+    }
+
+    private async Task DownloadPdf()
+    {
+	    try
+	    {
+		    var entries = FilteredEntries.ToList();
+		    var pdfBytes = await Task.Run(() => new ExportService().GenerateJournalPdf(entries));
+
+		    string fileName = $"Journal_Export_{DateTime.Now:yyyyMMdd}.pdf";
+		    string targetFile = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+
+		    await File.WriteAllBytesAsync(targetFile, pdfBytes);
+
+		    await Task.Yield(); 
+
+		    await Share.Default.RequestAsync(new ShareFileRequest
+		    {
+			    Title = "Export Journal",
+			    File = new ShareFile(targetFile)
+		    });
+	    }
+	    catch (Exception ex)
+	    {
+		    await App.Current.MainPage.DisplayAlert("Export", "Could not open share dialog. Please try again.", "OK");
+	    }
     }
 }

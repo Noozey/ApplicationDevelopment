@@ -19,7 +19,7 @@
         </h2>
         <p class="text-secondary-foreground">View and navigate through your journal entries</p>
     </div>
-
+   
     @* Calendar Card *@
     <div class="bg-card rounded-2xl shadow-xl border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-6">
@@ -118,9 +118,9 @@
                 </div>
                 
                 <div class="pt-2">
-                    <p class="text-foreground leading-relaxed text-base">
-                        @selectedEntry.Content
-                    </p>
+	                <div class="journal-rich-text mb-4 line-clamp-3 overflow-hidden text-foreground">
+	                @((MarkupString) @selectedEntry.Content)
+	                </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(selectedEntry.Tags))
@@ -205,7 +205,7 @@
     private string[] daysOfWeek = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
     private int daysInMonth => DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
     private int startOffset => (int)new DateTime(currentDate.Year, currentDate.Month, 1).DayOfWeek;
-
+  
     protected override async Task OnInitializedAsync()
     {
         await LoadEntries();
@@ -238,3 +238,37 @@
         Nav.NavigateTo("/create");
     }
 }
+
+<style>
+    /* Container for the HTML content */
+    /* Style common HTML tags */
+    b,
+    strong {
+        font-weight: 700;
+        color: var(--color-primary); /* Makes bold text your primary color */
+    }
+
+    i,
+    em {
+        font-style: italic;
+    }
+
+    p {
+        margin-bottom: 0.75rem;
+    }
+
+    ul {
+        list-style-type: disc;
+        margin-left: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-weight: bold;
+        line-height: 1.25;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+</style>

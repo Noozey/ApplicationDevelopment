@@ -24,7 +24,6 @@ namespace MauiApp2.Services
 
         public async Task DeleteEntry(JournalEntry entry)
         {
-            // Find and attach the entity if not tracked
             var tracked = _context.JournalEntries.Local.FirstOrDefault(e => e.EntryId == entry.EntryId);
             if (tracked != null)
             {
@@ -34,6 +33,7 @@ namespace MauiApp2.Services
             {
                 _context.JournalEntries.Remove(entry);
             }
+
             await _context.SaveChangesAsync();
         }
 
@@ -52,17 +52,14 @@ namespace MauiApp2.Services
 
             try
             {
-                // Check if there's already a tracked instance
                 var trackedEntity = _context.JournalEntries.Local
                     .FirstOrDefault(e => e.EntryId == entry.EntryId);
 
                 if (trackedEntity != null)
                 {
-                    // If already tracked, detach it first
                     _context.Entry(trackedEntity).State = EntityState.Detached;
                 }
 
-                // Now safely update or add
                 if (entry.EntryId > 0)
                 {
                     _context.JournalEntries.Update(entry);
@@ -82,5 +79,6 @@ namespace MauiApp2.Services
                 throw;
             }
         }
+
     }
 }
