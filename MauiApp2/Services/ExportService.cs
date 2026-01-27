@@ -1,7 +1,6 @@
 ﻿using MauiApp2.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
-// Use an alias to resolve the ambiguity
 using QuestColors = QuestPDF.Helpers.Colors;
 
 namespace MauiApp2.Services
@@ -18,7 +17,6 @@ namespace MauiApp2.Services
                 {
                     page.Margin(1, Unit.Inch);
 
-                    // Fixed the Color reference using the alias
                     page.Header().Text("My Journal Entries")
                         .FontSize(24)
                         .SemiBold()
