@@ -16,28 +16,111 @@
                 </svg>
             </div>
             <input type="text" @bind="searchTerm" @bind:event="oninput" @bind:after="ResetPagination"
-                   placeholder="Search by content or mood..."
+                   placeholder="Search by content, mood, or tags..."
                    class="w-full pl-12 pr-4 py-4 border-2 bg-background text-foreground rounded-xl focus:ring-2 focus:border-primary transition-all shadow-sm font-medium"
                    style="border-color: var(--color-input);">
         </div>
-        <button class="px-6 py-4 border-2 rounded-xl hover-bg hover-border flex items-center gap-2 transition-all flex-shrink-0 shadow-sm font-semibold text-secondary-foreground"
-                style="border-color: var(--color-input); background-color: var(--color-background);">
+        <button @onclick="ToggleFilters"
+                class="px-6 py-4 border-2 rounded-xl hover-bg hover-border flex items-center gap-2 transition-all flex-shrink-0 shadow-sm font-semibold text-secondary-foreground @(showFilters ? "bg-primary text-white" : "")"
+                style="@(showFilters ? "background-color: var(--color-primary) !important; color: var(--color-primary-foreground) !important;" : "border-color: var(--color-input); background-color: var(--color-background);")">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
             </svg>
             <span>Filters</span>
+            @if (ActiveFilterCount > 0)
+            {
+                <span class="bg-white text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                    @ActiveFilterCount
+                </span>
+            }
         </button>
-        <button @onclick="DownloadPdf" 
+        <button @onclick="DownloadPdf"
                 class="px-6 py-4 border-2 rounded-xl hover:bg-primary hover:text-white flex items-center gap-2 transition-all shadow-sm font-semibold text-secondary-foreground"
                 style="border-color: var(--color-input);">
-	        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-		        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-		        <polyline points="7 10 12 15 17 10"></polyline>
-		        <line x1="12" y1="15" x2="12" y2="3"></line>
-	        </svg>
-	        <span>Export PDF</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Export PDF</span>
         </button>
     </div>
+
+    @* Filter Panel *@
+    @if (showFilters)
+    {
+        <div class="bg-card border-2 rounded-2xl p-6 shadow-lg" style="border-color: var(--color-border);">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @* Date Range Filter *@
+                <div>
+                    <label class="block text-sm font-semibold text-foreground mb-3">Date Range</label>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-secondary-foreground mb-1">From</label>
+                            <input type="date" @bind="filterStartDate" @bind:after="ResetPagination"
+                                   class="w-full px-3 py-2 border-2 rounded-lg text-sm"
+                                   style="border-color: var(--color-input);">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-secondary-foreground mb-1">To</label>
+                            <input type="date" @bind="filterEndDate" @bind:after="ResetPagination"
+                                   class="w-full px-3 py-2 border-2 rounded-lg text-sm"
+                                   style="border-color: var(--color-input);">
+                        </div>
+                    </div>
+                </div>
+
+                @* Mood Filter *@
+                <div>
+                    <label class="block text-sm font-semibold text-foreground mb-3">Moods</label>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                        @foreach (var mood in AvailableMoods)
+                        {
+                            <label class="flex items-center gap-2 cursor-pointer hover:bg-muted p-2 rounded-lg transition-all">
+                                <input type="checkbox"
+                                       checked="@selectedMoods.Contains(mood)"
+                                       @onchange="() => ToggleMood(mood)"
+                                       class="w-4 h-4 rounded border-2"
+                                       style="accent-color: var(--color-primary);">
+                                <span class="text-sm text-foreground">@mood</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                @* Tag Filter *@
+                <div>
+                    <label class="block text-sm font-semibold text-foreground mb-3">Tags</label>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                        @foreach (var tag in AvailableTags)
+                        {
+                            <label class="flex items-center gap-2 cursor-pointer hover:bg-muted p-2 rounded-lg transition-all">
+                                <input type="checkbox"
+                                       checked="@selectedTags.Contains(tag)"
+                                       @onchange="() => ToggleTag(tag)"
+                                       class="w-4 h-4 rounded border-2"
+                                       style="accent-color: var(--color-primary);">
+                                <span class="text-sm text-foreground">@tag</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* Filter Actions *@
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t" style="border-color: var(--color-border);">
+                <button @onclick="ClearFilters"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold text-secondary-foreground hover:bg-muted transition-all">
+                    Clear All
+                </button>
+                <button @onclick="() => showFilters = false"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                        style="background-color: var(--color-primary); color: var(--color-primary-foreground);">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    }
 
     @* Results Summary *@
     @if (allEntries != null && FilteredEntries.Any())
@@ -48,15 +131,15 @@
                 <span class="font-bold text-foreground">@FilteredEntries.Count()</span>
                 @(FilteredEntries.Count() == 1 ? "entry" : "entries")
             </p>
-            @if (!string.IsNullOrWhiteSpace(searchTerm))
+            @if (!string.IsNullOrWhiteSpace(searchTerm) || ActiveFilterCount > 0)
             {
-                <button @onclick="ClearSearch"
+                <button @onclick="ClearAllSearchAndFilters"
                         class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    Clear search
+                    Clear all filters
                 </button>
             }
         </div>
@@ -80,12 +163,12 @@ else if (!FilteredEntries.Any())
             </svg>
         </div>
         <h3 class="text-xl font-bold text-foreground mb-2">
-            @(string.IsNullOrWhiteSpace(searchTerm) ? "No journal entries yet" : "No matching entries found")
+            @(string.IsNullOrWhiteSpace(searchTerm) && ActiveFilterCount == 0 ? "No journal entries yet" : "No matching entries found")
         </h3>
         <p class="text-secondary-foreground mb-6">
-            @(string.IsNullOrWhiteSpace(searchTerm) ? "Start your journaling journey today!" : "Try adjusting your search terms")
+            @(string.IsNullOrWhiteSpace(searchTerm) && ActiveFilterCount == 0 ? "Start your journaling journey today!" : "Try adjusting your search terms or filters")
         </p>
-        @if (string.IsNullOrWhiteSpace(searchTerm))
+        @if (string.IsNullOrWhiteSpace(searchTerm) && ActiveFilterCount == 0)
         {
             <button class="px-8 py-3 font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg flex items-center gap-2 mx-auto"
                     style="background-color: var(--color-primary); color: var(--color-primary-foreground);"
@@ -95,6 +178,14 @@ else if (!FilteredEntries.Any())
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
                 Create First Entry
+            </button>
+        }
+        else
+        {
+            <button @onclick="ClearAllSearchAndFilters"
+                    class="px-6 py-2 rounded-lg font-semibold transition-all"
+                    style="background-color: var(--color-primary); color: var(--color-primary-foreground);">
+                Clear Filters
             </button>
         }
     </div>
@@ -186,8 +277,8 @@ else
                     </div>
 
                     @* Content Preview *@
-                    <div class="journal-rich-text mb-4  text-foreground">
-	                    @((MarkupString)entry.Content)
+                    <div class="journal-rich-text mb-4 text-foreground">
+                        @((MarkupString)entry.Content)
                     </div>
 
                     @* Tags *@
@@ -276,48 +367,164 @@ else
 }
 
 <style>
-          b,
-         strong {
-            font-weight: 700;
-            color: var(--color-primary);         }
+    b,
+    strong {
+        font-weight: 700;
+        color: var(--color-primary);
+    }
 
-         i,
-        em {
-            font-style: italic;
-        }
+    i,
+    em {
+        font-style: italic;
+    }
 
-        p {
-            margin-bottom: 0.75rem;
-        }
+    p {
+        margin-bottom: 0.75rem;
+    }
 
-        ul {
-            list-style-type: disc;
-            margin-left: 1.25rem;
-            margin-bottom: 1rem;
-        }
+    ul {
+        list-style-type: disc;
+        margin-left: 1.25rem;
+        margin-bottom: 1rem;
+    }
 
-        h1,
-        h2,
-        h3 {
-            font-weight: bold;
-            line-height: 1.25;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-        }
+    h1,
+    h2,
+    h3 {
+        font-weight: bold;
+        line-height: 1.25;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
 </style>
 
 @code {
     private List<JournalEntry> allEntries;
     private string searchTerm = "";
 
+    // Filter state
+    private bool showFilters = false;
+    private DateTime? filterStartDate;
+    private DateTime? filterEndDate;
+    private HashSet<string> selectedMoods = new();
+    private HashSet<string> selectedTags = new();
+
+    // Pagination
     private int currentPage = 1;
     private int pageSize = 5;
 
-    private IEnumerable<JournalEntry> FilteredEntries =>
-        string.IsNullOrWhiteSpace(searchTerm)
-        ? allEntries ?? new List<JournalEntry>()
-        : allEntries.Where(e => e.Content.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                                e.PrimaryMood.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    // Available options for filters (computed from all entries)
+    private List<string> AvailableMoods
+    {
+        get
+        {
+            if (allEntries == null) return new List<string>();
+
+            var moods = new HashSet<string>();
+            foreach (var entry in allEntries)
+            {
+                if (!string.IsNullOrEmpty(entry.PrimaryMood))
+                    moods.Add(entry.PrimaryMood);
+                if (!string.IsNullOrEmpty(entry.SecondaryMood1))
+                    moods.Add(entry.SecondaryMood1);
+                if (!string.IsNullOrEmpty(entry.SecondaryMood2))
+                    moods.Add(entry.SecondaryMood2);
+            }
+            return moods.OrderBy(m => m).ToList();
+        }
+    }
+
+    private List<string> AvailableTags
+    {
+        get
+        {
+            if (allEntries == null) return new List<string>();
+
+            var tags = new HashSet<string>();
+            foreach (var entry in allEntries)
+            {
+                if (!string.IsNullOrEmpty(entry.Tags))
+                {
+                    foreach (var tag in entry.Tags.Split(','))
+                    {
+                        var trimmedTag = tag.Trim();
+                        if (!string.IsNullOrEmpty(trimmedTag))
+                            tags.Add(trimmedTag);
+                    }
+                }
+            }
+            return tags.OrderBy(t => t).ToList();
+        }
+    }
+
+    private int ActiveFilterCount
+    {
+        get
+        {
+            int count = 0;
+            if (filterStartDate.HasValue) count++;
+            if (filterEndDate.HasValue) count++;
+            count += selectedMoods.Count;
+            count += selectedTags.Count;
+            return count;
+        }
+    }
+
+    private IEnumerable<JournalEntry> FilteredEntries
+    {
+        get
+        {
+            if (allEntries == null) return new List<JournalEntry>();
+
+            var filtered = allEntries.AsEnumerable();
+
+            // Search term filter (searches content, moods, and tags)
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.ToLower();
+                filtered = filtered.Where(e =>
+                    (e.Content?.ToLower().Contains(term) ?? false) ||
+                    (e.PrimaryMood?.ToLower().Contains(term) ?? false) ||
+                    (e.SecondaryMood1?.ToLower().Contains(term) ?? false) ||
+                    (e.SecondaryMood2?.ToLower().Contains(term) ?? false) ||
+                    (e.Tags?.ToLower().Contains(term) ?? false)
+                );
+            }
+
+            // Date range filter
+            if (filterStartDate.HasValue)
+            {
+                filtered = filtered.Where(e => e.EntryDate.Date >= filterStartDate.Value.Date);
+            }
+            if (filterEndDate.HasValue)
+            {
+                filtered = filtered.Where(e => e.EntryDate.Date <= filterEndDate.Value.Date);
+            }
+
+            // Mood filter
+            if (selectedMoods.Any())
+            {
+                filtered = filtered.Where(e =>
+                    selectedMoods.Contains(e.PrimaryMood) ||
+                    (e.SecondaryMood1 != null && selectedMoods.Contains(e.SecondaryMood1)) ||
+                    (e.SecondaryMood2 != null && selectedMoods.Contains(e.SecondaryMood2))
+                );
+            }
+
+            // Tag filter
+            if (selectedTags.Any())
+            {
+                filtered = filtered.Where(e =>
+                {
+                    if (string.IsNullOrEmpty(e.Tags)) return false;
+                    var entryTags = e.Tags.Split(',').Select(t => t.Trim());
+                    return entryTags.Any(t => selectedTags.Contains(t));
+                });
+            }
+
+            return filtered.OrderByDescending(e => e.EntryDate);
+        }
+    }
 
     private IEnumerable<JournalEntry> PaginatedEntries =>
         FilteredEntries
@@ -336,6 +543,44 @@ else
         }
 
         allEntries = await JournalService.GetAllEntriesForUser(userId);
+    }
+
+    private void ToggleFilters()
+    {
+        showFilters = !showFilters;
+    }
+
+    private void ToggleMood(string mood)
+    {
+        if (selectedMoods.Contains(mood))
+            selectedMoods.Remove(mood);
+        else
+            selectedMoods.Add(mood);
+        ResetPagination();
+    }
+
+    private void ToggleTag(string tag)
+    {
+        if (selectedTags.Contains(tag))
+            selectedTags.Remove(tag);
+        else
+            selectedTags.Add(tag);
+        ResetPagination();
+    }
+
+    private void ClearFilters()
+    {
+        filterStartDate = null;
+        filterEndDate = null;
+        selectedMoods.Clear();
+        selectedTags.Clear();
+        ResetPagination();
+    }
+
+    private void ClearAllSearchAndFilters()
+    {
+        searchTerm = "";
+        ClearFilters();
     }
 
     private void ResetPagination() => currentPage = 1;
@@ -382,27 +627,27 @@ else
 
     private async Task DownloadPdf()
     {
-	    try
-	    {
-		    var entries = FilteredEntries.ToList();
-		    var pdfBytes = await Task.Run(() => new ExportService().GenerateJournalPdf(entries));
+        try
+        {
+            var entries = FilteredEntries.ToList();
+            var pdfBytes = await Task.Run(() => new ExportService().GenerateJournalPdf(entries));
 
-		    string fileName = $"Journal_Export_{DateTime.Now:yyyyMMdd}.pdf";
-		    string targetFile = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+            string fileName = $"Journal_Export_{DateTime.Now:yyyyMMdd}.pdf";
+            string targetFile = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
 
-		    await File.WriteAllBytesAsync(targetFile, pdfBytes);
+            await File.WriteAllBytesAsync(targetFile, pdfBytes);
 
-		    await Task.Yield(); 
+            await Task.Yield();
 
-		    await Share.Default.RequestAsync(new ShareFileRequest
-		    {
-			    Title = "Export Journal",
-			    File = new ShareFile(targetFile)
-		    });
-	    }
-	    catch (Exception ex)
-	    {
-		    await App.Current.MainPage.DisplayAlert("Export", "Could not open share dialog. Please try again.", "OK");
-	    }
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Export Journal",
+                File = new ShareFile(targetFile)
+            });
+        }
+        catch (Exception ex)
+        {
+            await App.Current.MainPage.DisplayAlert("Export", "Could not open share dialog. Please try again.", "OK");
+        }
     }
 }
